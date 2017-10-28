@@ -8,7 +8,6 @@ import multiprocessing
 from multiprocessing import Process,Queue
 
 from src.core import *
-from src.file_helper import check_dirs
 
 def masscan(ipaddr, scandir, interface, speed, ports, protocol, quiet):
     # Configure Ports Based on Protocol and Port Selection [D/A]
@@ -46,36 +45,23 @@ def basic_nmap(ipaddr, scandir, nmap_options, protocol, quiet):
         results = f.readlines()[1:-1]
         ports = ','.join(i.split()[2] for i in results)
     
-    NMAPSCAN = "nmap {0} -p{1} -oA {2}/basic_nmap {3}".format(nmap_options, ports, scandir, ipaddr)
+    BASIC_NMAP = "nmap {0} -p{1} -oA {2}/basic_nmap {3}".format(nmap_options, ports, scandir, ipaddr)
     print("{0}[+]{1} Starting Nmap Scan for {2}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
     if quiet is True:
         with open(os.devnull, 'w') as FNULL:
-            nmap_results = subprocess.check_call(NMAPSCAN, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
+            nmap_results = subprocess.check_call(BASIC_NMAP, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
     else:
         print("{0}[+]{1} nmap {2} -p {3} -oA {4}/basic_nmap {5}"
             .format(bcolors.GREEN, bcolors.ENDC, nmap_options, ports, scandir, ipaddr))
-        nmap_results = subprocess.check_call(NMAPSCAN, shell=True)
-    
-
-def scanner(ipaddr, 
-            output_dir, 
-            protocol, 
-            interface, 
-            speed, 
-            nmap_options, 
-            enumerate,
-            ports, 
-            quick,
-            quiet):
-    
-    # Variables
+        nmap_results = subprocess.check_call(BASIC_NMAP, shell=True)
+        
+        
+def quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports, quiet):
     ipaddr = ipaddr.strip()
-    hostdir = output_dir + "/" + ipaddr
-    scandir = hostdir + "/scans"
     
     try:
-        check_dirs(output_dir, hostdir, scandir, quiet)
         masscan(ipaddr, scandir, interface, speed, ports, protocol, quiet)
         basic_nmap(ipaddr, scandir, nmap_options, protocol, quiet)
-    except KeyboardInterrupt:
-        print("\n\n{0}[!]{1} Scan Cancelled!".format(bcolors.RED, bcolors.ENDC))
+    except Exception, e:
+        print("{0}[!]{1} Unknown Error: {2}".format(bcolors.RED, bcolors.ENDC, e))
+        sys.exit()

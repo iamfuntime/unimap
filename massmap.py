@@ -8,7 +8,9 @@ from argparse import ArgumentParser
 
 import src
 from src.core import *
-from src.scanner import scanner
+from src.quick_scan import quick_scan
+from src.file_helper import check_dirs
+from src.detailed_nmap import detailed_nmap
 
 # Running as root?
 if os.geteuid() != 0:
@@ -69,32 +71,31 @@ def main():
                         default=False,
                         required=False,
                         action="store_true",
-                        help="Run additional enumeration programs? e.g. wpscan, nikto, dirb, etc.")
+                        help="Run additional enumeration programs? e.g. wpscan, nikto, dirb, etc")
     parser.add_argument("--ports",
                         dest="ports",
                         default="D",
                         choices=['D', 'A'],
                         required=False,
                         type=str,
-                        help="Default or All ports. All (65k ports) or D (NMAP top 100).")
+                        help="Default or Expanded ports. Expanded (NMAP top 1000) or D (NMAP top 100)")
     parser.add_argument("--quick",
                         dest="quick",
                         default=False,
                         action="store_true",
                         required=False,
-                        help="Execute quick versions of all scans.")
+                        help="Run Masscan and basic Nmap scan")
     parser.add_argument("--quiet",
                         dest="quiet",
                         default=False,
                         action="store_true",
                         required=False,
-                        help="Suppress banner and headers to limit results.")
+                        help="Suppress banner and headers to limit results")
     arguments = parser.parse_args()
 
-    if len(sys.argv) == 1:
-        print_banner()
-        parser.error("No arguments given.")
-        parser.print_usage
+    if arguments.quick is True and arguments.enumerate is True:
+        print("{0}[!]{1} Error! Unable to do a quick scan, and a deep enumeration scan"
+            .format(bcolors.RED, bcolors.ENDC))
         sys.exit()
         
     # Verify Target IP Address
@@ -125,18 +126,39 @@ def main():
             print("{0}[>] {1}Port Selection: Default").format(bcolors.BLUE, bcolors.ENDC)
         elif arguments.ports == 'A':
             print("{0}[>] {1}Port Selection: All").format(bcolors.BLUE, bcolors.ENDC)
-        
-    scanner(arguments.target, 
-                arguments.output_dir, 
-                arguments.protocol, 
-                arguments.interface, 
-                arguments.speed, 
-                arguments.nmap_options, 
-                arguments.enumerate,
-                arguments.ports, 
-                arguments.quick,
-                arguments.quiet)
+      
+    # Rename Variables
+    hostdir = arguments.output_dir + "/" + arguments.target
+    scandir = hostdir + "/scans"
+    ipaddr = arguments.target
+    protocol = arguments.protocol
+    interface = arguments.interface
+    speed = arguments.speed
+    nmap_options = arguments.nmap_options
+    enumerate = arguments.enumerate
+    ports = arguments.ports
+    quick = arguments.quick
+    quiet = arguments.quiet
+    
+    # Run Functions
+    try:
+        check_dirs(arguments.output_dir, hostdir, scandir, arguments.quiet)
+        #quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports, quiet)
 
+        if quick is not True:
+            detailed_nmap(ipaddr, scandir, nmap_options, quiet)
+        else: sys.exit()
+        
+        #if enumerate is True:
+        #    enumerate_scan(ipaddr, scandir, quiet)
+        #else: sys.exit()
+
+    except KeyboardInterrupt:
+        print("{0}[!]{1} Scan Cancelled!".format(bcolors.RED, bcolors.ENDC))
+        sys.exit()
+    except Exception, e:
+        print("{0}[!]{1} Unknown Error: {2}".format(bcolors.RED, bcolors.ENDC, e))
+        sys.exit()
 
 if __name__ == '__main__':
     main()
