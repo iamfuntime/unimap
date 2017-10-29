@@ -113,7 +113,7 @@ def main():
     
     # Print Configuration    
     if arguments.quiet is not True:
-        print (banner + "\n\n")
+        print (banner)
         print("{0}[>] {1}Target: " + arguments.target).format(bcolors.BLUE, bcolors.ENDC)
         print("{0}[>] {1}Output Directory: " + arguments.output_dir).format(bcolors.BLUE, bcolors.ENDC)
         print("{0}[>] {1}Protocol: " + arguments.protocol).format(bcolors.BLUE, bcolors.ENDC)
@@ -142,7 +142,7 @@ def main():
     
     # Run Functions
     try:
-        check_dirs(arguments.output_dir, hostdir, scandir, arguments.quiet)
+        #check_dirs(arguments.output_dir, hostdir, scandir, arguments.quiet)
         #quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports, quiet)
 
         if quick is not True:
