@@ -5,6 +5,7 @@ from src.core import *
 
 
 def check_dirs(output_dir, hostdir, scandir, quiet):
+    print("{}[>]{} Checking Directory Structure".format(bcolors.BLUE, bcolors.ENDC, output_dir))
     try:
         os.stat(output_dir)
     except:
@@ -47,5 +48,5 @@ def check_dirs(output_dir, hostdir, scandir, quiet):
     except:
         os.mkdir(lootdir)
         if quiet is not True:
-            print("{}\t[>]{} Creating {}".format(bcolors.BLUE, bcolors.ENDC, lootdir))
+            print("{}\t[>]{} Creating {}\n".format(bcolors.BLUE, bcolors.ENDC, lootdir))
         else: pass

@@ -146,7 +146,7 @@ def main():
         quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports, quiet)
 
         if quick is not True:
-            detailed_nmap(ipaddr, scandir, nmap_options, quiet)
+            detailed_nmap(ipaddr, scandir, quiet)
         else: sys.exit()
         
         #if enumerate is True:
