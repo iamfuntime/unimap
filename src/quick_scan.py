@@ -30,14 +30,13 @@ def masscan(ipaddr, scandir, interface, speed, ports, protocol, quiet):
     MASSCAN = "masscan -p {0} --max-rate {1} -e {2} --wait 5 --interactive -oL {3}/masscan-{5}.txt {4}".format(
         ports, speed, interface, scandir, ipaddr, protocol)
     print("{0}[+]{1} Starting Masscan for {2}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
-    if quiet is True:
-        with open(os.devnull, 'w') as FNULL:
-            mass_results = subprocess.check_call(MASSCAN, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
-    else:
+    if quiet is not True:
         print("{0}[+]{1} masscan -p {2}_ports --max-rate {3} -e {4} --wait 5 --interactive {5} -oL {6}/masscan-{2}.txt"
             .format(bcolors.GREEN, bcolors.ENDC, protocol, speed, interface, 
             ipaddr, scandir))
-        mass_results = subprocess.check_call(MASSCAN, shell=True)
+    else: pass
+    with open(os.devnull, 'w') as FNULL:
+        subprocess.check_call(MASSCAN, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
         
         
 def basic_nmap(ipaddr, scandir, nmap_options, protocol, quiet):
@@ -47,13 +46,12 @@ def basic_nmap(ipaddr, scandir, nmap_options, protocol, quiet):
     
     BASIC_NMAP = "nmap {0} -p{1} -oA {2}/basic_nmap {3}".format(nmap_options, ports, scandir, ipaddr)
     print("{0}[+]{1} Starting Basic Nmap Scan for {2}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
-    if quiet is True:
-        with open(os.devnull, 'w') as FNULL:
-            nmap_results = subprocess.check_call(BASIC_NMAP, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
-    else:
+    if quiet is not True:
         print("{0}[+]{1} nmap {2} -p {3} -oA {4}/basic_nmap {5}"
             .format(bcolors.GREEN, bcolors.ENDC, nmap_options, ports, scandir, ipaddr))
-        nmap_results = subprocess.check_call(BASIC_NMAP, shell=True)
+    else: pass
+    with open(os.devnull, 'w') as FNULL:
+        subprocess.check_call(BASIC_NMAP, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
         
         
 def quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports, quiet):

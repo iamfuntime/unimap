@@ -152,6 +152,8 @@ def main():
         #if enumerate is True:
         #    enumerate_scan(ipaddr, scandir, quiet)
         #else: sys.exit()
+        
+        print("\n{0}[>]{1} Scans Complete! Results are located in {2}".format(bcolors.BLUE, bcolors.ENDC, scandir))
 
     except KeyboardInterrupt:
         print("{0}[!]{1} Scan Cancelled!".format(bcolors.RED, bcolors.ENDC))

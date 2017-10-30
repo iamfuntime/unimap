@@ -10,7 +10,7 @@ from multiprocessing import Process,Queue
 from src.core import *
 
 def detailed_nmap(ipaddr, scandir, nmap_options, quiet):
-    print("{0}[+]{1} Checking for Detailed Nmap Scan Services.".format(bcolors.GREEN, bcolors.ENDC))
+    print("{0}[+]{1} Checking for Detailed Nmap Scan Services".format(bcolors.GREEN, bcolors.ENDC))
     # Variables
     service_dict = {}
     script_dict = {
@@ -59,9 +59,8 @@ def detailed_nmap(ipaddr, scandir, nmap_options, quiet):
                 for port in service_dict[service]:
                     port = port.split('/')[0]
                     scan_func(port, service, scripts)
-                    if quiet is True:
-                        with open(os.devnull, 'w') as FNULL:
-                            subprocess.check_call(NMAP_SCAN, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
-                    else:
+                    if quiet is not True:
                         print("{0}[+]{1} {2}".format(bcolors.GREEN, bcolors.ENDC, NMAP_SCAN))
-                        subprocess.check_call(NMAP_SCAN, shell=True)
+                    else: pass
+                    with open(os.devnull, 'w') as FNULL:
+                        subprocess.check_call(NMAP_SCAN, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
