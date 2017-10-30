@@ -46,7 +46,7 @@ def basic_nmap(ipaddr, scandir, nmap_options, protocol, quiet):
         ports = ','.join(i.split()[2] for i in results)
     
     BASIC_NMAP = "nmap {0} -p{1} -oA {2}/basic_nmap {3}".format(nmap_options, ports, scandir, ipaddr)
-    print("{0}[+]{1} Starting Nmap Scan for {2}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
+    print("{0}[+]{1} Starting Basic Nmap Scan for {2}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
     if quiet is True:
         with open(os.devnull, 'w') as FNULL:
             nmap_results = subprocess.check_call(BASIC_NMAP, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)

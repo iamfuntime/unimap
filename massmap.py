@@ -123,9 +123,9 @@ def main():
         print("{0}[>] {1}Enumerate: " + str(arguments.enumerate)).format(bcolors.BLUE, bcolors.ENDC)
         print("{0}[>] {1}Quick Scan?: " + str(arguments.quick)).format(bcolors.BLUE, bcolors.ENDC)
         if arguments.ports == 'D':
-            print("{0}[>] {1}Port Selection: Default").format(bcolors.BLUE, bcolors.ENDC)
+            print("{0}[>] {1}Port Selection: Default\n").format(bcolors.BLUE, bcolors.ENDC)
         elif arguments.ports == 'A':
-            print("{0}[>] {1}Port Selection: All").format(bcolors.BLUE, bcolors.ENDC)
+            print("{0}[>] {1}Port Selection: All\n").format(bcolors.BLUE, bcolors.ENDC)
       
     # Rename Variables
     hostdir = arguments.output_dir + "/" + arguments.target
@@ -142,8 +142,8 @@ def main():
     
     # Run Functions
     try:
-        #check_dirs(arguments.output_dir, hostdir, scandir, arguments.quiet)
-        #quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports, quiet)
+        check_dirs(arguments.output_dir, hostdir, scandir, arguments.quiet)
+        quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports, quiet)
 
         if quick is not True:
             detailed_nmap(ipaddr, scandir, nmap_options, quiet)
