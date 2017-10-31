@@ -22,19 +22,19 @@ class bcolors:
     backWhite = '\033[47m'
     
 # Software Dependencies
-standard_software = ['nmap', 'masscan']
+standard_software = ['nmap', 'unicornscan']
 enum_software = ['nikto', 'wpscan', 'dirb', 'onesixtyone', 'snmpwalk', 
                  'medusa', 'hydra', 'ncrack', 'enum4linux', 'smtp-user-enum',]
     
 # MASSMAP Banner    
 banner = '''
-  _____ _____    ______ ______ _____ _____  ______  
- /     \\\\__  \\  /  ___//  ___//     \\\\__  \\ \\____ \\ 
-|  Y Y  \\/ __ \\_\\___ \\ \\___ \\|  Y Y  \\/ __ \\|  |_> >
-|__|_|  (____  /____  >____  >__|_|  (____  /   __/ 
-      \\/     \\/     \\/     \\/      \\/     \\/|__|    
-                                                        
-                                             by funtime 
+             .__                       
+ __ __  ____ |__| _____ _____  ______  
+|  |  \\/    \\|  |/     \\\\__  \\ \\____ \\ 
+|  |  /   |  \\  |  Y Y  \\/ __ \\|  |_> >
+|____/|___|  /__|__|_|  (____  /   __/ 
+           \\/         \\/     \\/|__|    
+                                by funtime
 '''
 
 

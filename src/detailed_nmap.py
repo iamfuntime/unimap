@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os
-import time
 import socket
 import subprocess
 import multiprocessing

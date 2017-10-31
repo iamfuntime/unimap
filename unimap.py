@@ -26,7 +26,7 @@ for tool in standard_software:
         print("{0}[!]{1} Unable to find {2}. Install it and ensure it is in your PATH"
             .format(bcolors.RED, bcolors.ENDC, tool))
         sys.exit()
-
+        
 
 def main():
     parser = ArgumentParser()
@@ -74,11 +74,11 @@ def main():
                         help="Run additional enumeration programs? e.g. wpscan, nikto, dirb, etc")
     parser.add_argument("--ports",
                         dest="ports",
-                        default="D",
-                        choices=['D', 'A'],
+                        default="d",
+                        choices=['d', 'a'],
                         required=False,
                         type=str,
-                        help="Default or Expanded ports. Expanded (NMAP top 1000) or D (NMAP top 100)")
+                        help="Default or All  ports.")
     parser.add_argument("--quick",
                         dest="quick",
                         default=False,

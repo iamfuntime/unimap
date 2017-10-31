@@ -9,40 +9,34 @@ from multiprocessing import Process,Queue
 
 from src.core import *
 
-def masscan(ipaddr, scandir, interface, speed, ports, protocol, quiet):
-    # Configure Ports Based on Protocol and Port Selection [D/A]
-    if protocol == 'tcp':
-        if ports == 'D':
-            ports = tcp_ports_100
-        elif ports == 'A':
-            ports = tcp_ports_1000
-    elif protocol == 'udp':
-        if ports == 'D':
-            ports = udp_ports_100
-        elif ports == 'A':
-            ports = udp_ports_1000
-    elif protocol == 'all':
-        if ports == 'D':
-            ports = tcp_ports_100 + "," + udp_ports_100
-        elif ports == 'A':
-            ports = tcp_ports_1000 + "," + udp_ports_1000
+def unicornscan(ipaddr, scandir, interface, speed, ports, protocol, quiet):
+    if (ports == 'd'):
+        ports = 'p'
+    else: pass
+    if (protocol == 'tcp'):
+        proto = 'T'
+    elif (protocol == 'udp'):
+        proto = 'U'
+    else: pass
 
-    MASSCAN = "masscan -p {0} --max-rate {1} -e {2} --wait 5 --interactive -oL {3}/masscan-{5}.txt {4}".format(
-        ports, speed, interface, scandir, ipaddr, protocol)
-    print("{0}[+]{1} Starting Masscan for {2}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
+    UNICORNSCAN = "unicornscan -i {0} -m{1} -r {2} -l {3}/unicornscan-{4}.txt {5}:{6}.format(
+        interface, proto, speed, scandir, protocol, ipaddr, ports)
+
+    print("{0}[+]{1} Starting Unicornscan for {2}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
     if quiet is not True:
-        print("{0}[+]{1} masscan -p {2}_ports --max-rate {3} -e {4} --wait 5 --interactive {5} -oL {6}/masscan-{2}.txt"
-            .format(bcolors.GREEN, bcolors.ENDC, protocol, speed, interface, 
-            ipaddr, scandir))
+        print("{0}[+]{1} unicornscan -i {0} -m{1} -r {2} -l {3}/unicornscan-{4}.txt {5}:{4}_ports"
+            .format(bcolors.GREEN, bcolors.ENDC, interface, proto, speed, scandir, protocol, ipaddr))
     else: pass
     with open(os.devnull, 'w') as FNULL:
-        subprocess.check_call(MASSCAN, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
+        subprocess.check_call(UNICORNSCAN, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
+    
         
         
 def basic_nmap(ipaddr, scandir, nmap_options, protocol, quiet):
-    with open('{0}/masscan-{1}.txt'.format(scandir, protocol), 'r') as f:
-        results = f.readlines()[1:-1]
-        ports = ','.join(i.split()[2] for i in results)
+    with open('{0}/unicornscan-{1}.txt'.format(scandir, protocol), 'r') as f:
+        results = f.readlines()
+        #ports = ','.join(i.split()[2] for i in results)
+        ports = ','.join(i.split('[')[1].split(']')[0].replace(' ', '') for i in results)
     
     BASIC_NMAP = "nmap {0} -p{1} -oA {2}/basic_nmap {3}".format(nmap_options, ports, scandir, ipaddr)
     print("{0}[+]{1} Starting Basic Nmap Scan for {2}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
