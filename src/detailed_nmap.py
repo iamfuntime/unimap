@@ -5,6 +5,8 @@ import socket
 import subprocess
 import multiprocessing
 from multiprocessing import Process,Queue
+from multiprocessing import Pool
+from multiprocessing.dummy import Pool as ThreadPool
 
 from src.core import *
 
@@ -22,10 +24,10 @@ def id_services(scandir):
     global script_dict
     service_dict = {}
     script_dict = {
-        'ssh':SSH_SCRIPTS, 
-        'ftp':FTP_SCRIPTS, 
-        'dns':DNS_SCRIPTS, 
-        'http':HTTP_SCRIPTS,
+        'ssh': SSH_SCRIPTS, 
+        'ftp': FTP_SCRIPTS, 
+        'domain': DNS_SCRIPTS, 
+        'http': HTTP_SCRIPTS,
         'microsoft-ds': WIN_SCRIPTS,
         'rpcbind': RPC_SCRIPTS,
         'ms-wbt-server': RDP_SCRIPTS,
@@ -42,6 +44,9 @@ def id_services(scandir):
         ports = []
         if ('tcp' in result) and ('open' in result) and not ('Discovered' in result):
             service = result.split()[2]
+            if service == 'ssl/http':
+                service = 'https'
+            else: pass
             port = result.split()[0]
             
             if service in service_dict:
@@ -51,31 +56,39 @@ def id_services(scandir):
             service_dict[service] = ports
             
     if len(service_dict) > 0:
-        print("{0}[+]{1} Running Detailed Nmap Scans on ".format(bcolors.GREEN, bcolors.ENDC) + 
-            str(len(service_dict)) + " Services")
+        print("{0}[+]{1} Running Detailed Nmap Scans on {2} Services".format(bcolors.GREEN, bcolors.ENDC, str(len(service_dict))))
 
 
-def nmap_scan(ipaddr, scandir, service_dict, quiet):
+def nmap_scan((port, scripts, scandir, service, ipaddr, quiet)):
+    NMAP_SCAN = 'nmap -Pn -n --open -T4 -p {} --script="{}" -oN {}/nmap_{}.nmap {}'.format(port,
+            scripts, scandir, service, ipaddr)
+    if quiet is not True:
+        print("{0}[+]{1} {2}".format(bcolors.GREEN, bcolors.ENDC, NMAP_SCAN))
+    else: pass
+    with open(os.devnull, 'w') as FNULL:
+        try:
+            subprocess.call(NMAP_SCAN, stdout=FNULL, shell=True)
+            print("{0}[+]{1} Finished Scanning for {2}".format(bcolors.GREEN, bcolors.ENDC, service))
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+
+
+def detailed_nmap(ipaddr, scandir, quiet):
+    id_services(scandir)
+   
+    jobs = []
     for service in service_dict:
         for script in script_dict:
             if script in service:
                 scripts = script_dict[script]
                 for port in service_dict[service]:
                     port = port.split('/')[0]
-                    scan_func(port, service, scripts, scandir, ipaddr)
-                    if quiet is not True:
-                        print("{0}[+]{1} {2}".format(bcolors.GREEN, bcolors.ENDC, NMAP_SCAN))
-                    else: pass
-                    with open(os.devnull, 'w') as FNULL:
-                        subprocess.check_call(NMAP_SCAN, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
+                    jobs.append((port, scripts, scandir, service, ipaddr, quiet))
 
-
-def detailed_nmap(ipaddr, scandir, quiet):
-    id_services(scandir)
-    
     # Establish multithreading
-    jobs = []
-    p = multiprocessing.Process(target=nmap_scan, args=(ipaddr, scandir, service_dict, quiet))
-    jobs.append(p)
-    p.start()
-    p.join()
+    #jobs = []
+    #p = multiprocessing.Process(target=nmap_scan, args=(ipaddr, scandir, service_dict, quiet))
+    #jobs.append(p)
+    #p.start()
+    pool = ThreadPool(4)
+    pool.map(nmap_scan, jobs)
