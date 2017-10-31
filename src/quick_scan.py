@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import time
 import socket
 import subprocess
@@ -19,12 +20,12 @@ def unicornscan(ipaddr, scandir, interface, speed, ports, protocol, quiet):
         proto = 'U'
     else: pass
 
-    UNICORNSCAN = "unicornscan -i {0} -m{1} -r {2} -l {3}/unicornscan-{4}.txt {5}:{6}.format(
+    UNICORNSCAN = "unicornscan -i {0} -m{1} -r {2} -l {3}/unicornscan-{4}.txt {5}:{6}".format( 
         interface, proto, speed, scandir, protocol, ipaddr, ports)
 
     print("{0}[+]{1} Starting Unicornscan for {2}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
     if quiet is not True:
-        print("{0}[+]{1} unicornscan -i {0} -m{1} -r {2} -l {3}/unicornscan-{4}.txt {5}:{4}_ports"
+        print("{0}[+]{1} unicornscan -i {2} -m{3} -r {4} -l {5}/unicornscan-{6}.txt {7}:{6}_ports"
             .format(bcolors.GREEN, bcolors.ENDC, interface, proto, speed, scandir, protocol, ipaddr))
     else: pass
     with open(os.devnull, 'w') as FNULL:
@@ -52,7 +53,7 @@ def quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports,
     ipaddr = ipaddr.strip()
     
     try:
-        masscan(ipaddr, scandir, interface, speed, ports, protocol, quiet)
+        unicornscan(ipaddr, scandir, interface, speed, ports, protocol, quiet)
         basic_nmap(ipaddr, scandir, nmap_options, protocol, quiet)
     except Exception, e:
         print("{0}[!]{1} Unknown Error: {2}".format(bcolors.RED, bcolors.ENDC, e))
