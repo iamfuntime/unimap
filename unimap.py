@@ -37,10 +37,10 @@ def main():
                         help="Set a target IP address. Ex. 10.10.10.10" )
     parser.add_argument("-o",   
                         dest="output_dir", 
-                        default='/tmp/massmap',
+                        default='/tmp/unimap',
                         required=False, 
                         type=str, 
-                        help="Set the output directory. Defaults to /tmp/massmap")
+                        help="Set the output directory. Defaults to /tmp/unimap")
     parser.add_argument("-p",   
                         dest="protocol", 
                         default='tcp',
@@ -59,7 +59,7 @@ def main():
                         default='1000',
                         required=False, 
                         type=str, 
-                        help="Set the Packets Per Second for Masscan. Ex. 1000")
+                        help="Set the Packets Per Second for Unicornscan. Ex. 1000")
     parser.add_argument("-n",   
                         dest="nmap_options", 
                         default='-PN -A -T4 -sS -sC',
@@ -84,7 +84,7 @@ def main():
                         default=False,
                         action="store_true",
                         required=False,
-                        help="Run Masscan and basic Nmap scan")
+                        help="Run Unicornscan and basic Nmap scan")
     parser.add_argument("--quiet",
                         dest="quiet",
                         default=False,
@@ -118,7 +118,7 @@ def main():
         print("{0}[>] {1}Output Directory: " + arguments.output_dir).format(bcolors.BLUE, bcolors.ENDC)
         print("{0}[>] {1}Protocol: " + arguments.protocol).format(bcolors.BLUE, bcolors.ENDC)
         print("{0}[>] {1}Interface: " + arguments.interface).format(bcolors.BLUE, bcolors.ENDC)
-        print("{0}[>] {1}Masscan Speed: " + arguments.speed).format(bcolors.BLUE, bcolors.ENDC)
+        print("{0}[>] {1}Unicornscan Speed: " + arguments.speed).format(bcolors.BLUE, bcolors.ENDC)
         print("{0}[>] {1}NMAP Options: " + str(arguments.nmap_options)).format(bcolors.BLUE, bcolors.ENDC)
         print("{0}[>] {1}Enumerate: " + str(arguments.enumerate)).format(bcolors.BLUE, bcolors.ENDC)
         print("{0}[>] {1}Quick Scan?: " + str(arguments.quick)).format(bcolors.BLUE, bcolors.ENDC)
