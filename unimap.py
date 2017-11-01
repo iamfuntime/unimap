@@ -142,8 +142,8 @@ def main():
     
     # Run Functions
     try:
-        #check_dirs(arguments.output_dir, hostdir, scandir, arguments.quiet)
-        #quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports, quiet)
+        check_dirs(arguments.output_dir, hostdir, scandir, arguments.quiet)
+        quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports, quiet)
 
         if quick is not True:
             detailed_nmap(ipaddr, scandir, quiet)

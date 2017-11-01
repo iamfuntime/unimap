@@ -21,7 +21,9 @@ for tool in enum_software:
             .format(bcolors.RED, bcolors.ENDC, tool))
         pass
         
-        
+
+
+
 def id_services(scandir):
     print("{0}[+]{1} Checking for Enumeration Scans".format(bcolors.GREEN, bcolors.ENDC))
     # Variables
@@ -34,8 +36,11 @@ def id_services(scandir):
         basic_results = [line for line in f.readlines() if 'open' in line]
     for result in basic_results:
         ports = []
-        if ('tcp' in result) and ('open' in result) and not ('Discovered' in result):
+        if ('tcp' in result) or ('udp' in result) and not ('Discovered' in result):
             service = result.split()[2]
+            if service == 'ssl/http':
+                service = 'https'
+            else: pass
             port = result.split()[0]
             
             if service in service_dict:
@@ -44,6 +49,5 @@ def id_services(scandir):
             ports.append(port)
             service_dict[service] = ports
             
-    if len(service_dict) == 0:
-        print("{0}[+]{1} Running Detailed Nmap Scans on ".format(bcolors.GREEN, bcolors.ENDC) + 
-            str(len(service_dict)) + " Services")
+    if len(service_dict) > 0:
+        print("{0}[+]{1} Running Detailed Nmap Scans on {2} Services".format(bcolors.GREEN, bcolors.ENDC, str(len(service_dict))))
