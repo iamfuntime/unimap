@@ -182,40 +182,6 @@ def tool_scans((ipaddr, scandir, service, port, quiet)):
                 except KeyboardInterrupt:
                     print("{0}[!]{1} Scan Cancelled! Moving On!".format(bcolors.RED, bcolors.ENDC))
         else: pass
-
-    elif ('ssh' == service) or ('ssh' in service):
-        if ('hydra' in installed_tools):
-            SSH_SCAN = 'hydra -f -V -t 1 -l root -P /usr/share/wordlists/rockyou.txt -s {0} {1} ssh | tee {2}/hydra.txt'
-                .format(port, ipaddr, scandir)
-            if quiet is not True:
-                print("{0}[+]{1} Running Hydra Against SSH".format(bcolors.GREEN, bcolors.ENDC))
-            else: pass
-            with open(os.devnull, 'w') as FNULL:
-                try:
-                    subprocess.call(SSH_SCAN, stdout=FNULL, shell=True)
-                    print("{0}[+]{1} Finished Running Hydra Against SSH".format(bcolors.GREEN, bcolors.ENDC))
-                except subprocess.CalledProcessError as e:
-                    raise RuntimeError("command '{}' return with error (code {}): {}".format(
-                        e.cmd, e.returncode, e.output))
-                except KeyboardInterrupt:
-                    print("{0}[!]{1} Scan Cancelled! Moving On!".format(bcolors.RED, bcolors.ENDC))
-        else: pass
-        
-        if ('medusa' in installed_tools):
-            SSH_SCAN = 'medusa -u root -p /usr/share/wordlists/rockyou.txt -e ns -h {0} - {1} -M ssh | tee {2}/medusa.txt'.format(ipaddr, port, scandir)
-            if quiet is not True:
-                print("{0}[+]{1} Running Medusa Against SSH".format(bcolors.GREEN, bcolors.ENDC))
-            else: pass
-            with open(os.devnull, 'w') as FNULL:
-                try:
-                    subprocess.call(SSH_SCAN, stdout=FNULL, shell=True)
-                    print("{0}[+]{1} Finished Running Medusa Against SSH".format(bcolors.GREEN, bcolors.ENDC))
-                except subprocess.CalledProcessError as e:
-                    raise RuntimeError("command '{}' return with error (code {}): {}".format(
-                        e.cmd, e.returncode, e.output))
-                except KeyboardInterrupt:
-                    print("{0}[!]{1} Scan Cancelled! Moving On!".format(bcolors.RED, bcolors.ENDC))
-        else: pass
             
             
 def enumerate_scan(ipaddr, scandir, quiet):

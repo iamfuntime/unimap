@@ -24,7 +24,8 @@ class bcolors:
 # Software Dependencies
 standard_software = ['nmap', 'unicornscan']
 enum_software = ['nikto', 'wpscan', 'dirb', 'onesixtyone', 'snmpwalk', 'nc', 
-                 'medusa', 'hydra', 'ncrack', 'enum4linux', 'smtp-user-enum',]
+                 'enum4linux', 'smtp-user-enum',]
+crack_software = ['hydra', 'medusa', 'ncrack']
     
 # UNIMAP Banner    
 banner = '''
@@ -51,3 +52,12 @@ MSSQL_SCRIPTS = 'ms-sql-* and not ms-sql-brute'
 ORACLE_SCRIPTS = 'oracle-sid-brute --script oracle-enum-users --script-args oracle-enum-users.sid=ORCL,userdb=orausers.txt'
 MYSQL_SCRIPTS = 'mysql-* and not mysql-brute'
 MONGODB_SCRIPTS = 'mongodb-* and not mongodb-brute'
+
+userlist = ['root', 'admin', 'test', 'guest', 'info', 'adm', 'mysql', 
+            'user', 'administrator', 'oracle', 'ftp']
+            
+passlist = ['password', '123456', '12345678', 'abc123', 'querty', 'monkey',
+            'letmein', 'dragon', '111111', 'baseball', 'iloveyou', 'trustno1',
+            '1234567', 'sunshine', 'master', '123123', 'welcome', 'shadow',
+            'ashley', 'footbal', 'jesus', 'michael', 'ninja', 'mustang',
+            'password1']

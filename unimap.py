@@ -73,6 +73,12 @@ def main():
                         required=False,
                         action="store_true",
                         help="Run additional enumeration programs? e.g. wpscan, nikto, dirb, etc")
+    parser.add_argument("-c",
+                        dest="crack",
+                        default=False,
+                        required=False,
+                        action="store_true",
+                        help="Run Brute Force password cracking against known services")
     parser.add_argument("--ports",
                         dest="ports",
                         default="d",
@@ -137,6 +143,7 @@ def main():
     speed = arguments.speed
     nmap_options = arguments.nmap_options
     enumerate = arguments.enumerate
+    crack = arguments.crack
     ports = arguments.ports
     quick = arguments.quick
     quiet = arguments.quiet
@@ -148,11 +155,15 @@ def main():
 
         if quick is not True:
             detailed_nmap(ipaddr, scandir, quiet)
-        else: sys.exit()
+        else: pass
         
         if enumerate is True:
             enumerate_scan(ipaddr, scandir, quiet)
-        else: sys.exit()
+        else: pass
+        
+        if crack is True:
+            crack(ipaddr, scandir, quiet)
+        else: pass
         
         print("\n{0}[>]{1} Scans Complete! Results are located in {2}".format(bcolors.BLUE, bcolors.ENDC, scandir))
 
