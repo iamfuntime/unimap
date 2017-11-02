@@ -57,4 +57,4 @@ def quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports,
         basic_nmap(ipaddr, scandir, nmap_options, protocol, quiet)
     except Exception, e:
         print("{0}[!]{1} Unknown Error: {2}".format(bcolors.RED, bcolors.ENDC, e))
-        sys.exit()
+        sys.exit(0)

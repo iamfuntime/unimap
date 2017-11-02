@@ -12,11 +12,12 @@ from src.quick_scan import quick_scan
 from src.file_helper import check_dirs
 from src.detailed_nmap import detailed_nmap
 from src.enumerate_scan import enumerate_scan
+from src.crack_scan import brute_force
 
 # Running as root?
 if os.geteuid() != 0:
     print("{0}[!]{1} This program needs to be run as root!".format(bcolors.RED, bcolors.ENDC))
-    exit()
+    sys.exit(0)
     
 # Dependencies
 for tool in standard_software:
@@ -26,7 +27,7 @@ for tool in standard_software:
     except Exception:
         print("{0}[!]{1} Unable to find {2}. Install it and ensure it is in your PATH"
             .format(bcolors.RED, bcolors.ENDC, tool))
-        sys.exit()
+        sys.exit(0)
         
 
 def main():
@@ -103,14 +104,14 @@ def main():
     if arguments.quick is True and arguments.enumerate is True:
         print("{0}[!]{1} Error! Unable to do a quick scan, and a deep enumeration scan"
             .format(bcolors.RED, bcolors.ENDC))
-        sys.exit()
+        sys.exit(0)
         
     # Verify Target IP Address
     try:
         socket.inet_aton(arguments.target)
     except socket.error:
         print((bcolors.RED) + ("[!]") + (bcolors.ENDC) + (" Invalid IP Address"))
-        sys.exit()
+        sys.exit(0)
 
     # Cleanup CLI Options
     if arguments.target.endswith('/' or '\\'):
@@ -162,17 +163,18 @@ def main():
         else: pass
         
         if crack is True:
-            crack(ipaddr, scandir, quiet)
+            brute_force(ipaddr, scandir, quiet)
         else: pass
         
         print("\n{0}[>]{1} Scans Complete! Results are located in {2}".format(bcolors.BLUE, bcolors.ENDC, scandir))
+        sys.exit(0)
 
     except KeyboardInterrupt:
         print("{0}[!]{1} Scan Cancelled!".format(bcolors.RED, bcolors.ENDC))
-        sys.exit()
+        sys.exit(0)
     except Exception, e:
         print("{0}[!]{1} Unknown Error: {2}".format(bcolors.RED, bcolors.ENDC, e))
-        sys.exit()
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()

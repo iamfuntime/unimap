@@ -24,7 +24,7 @@ for tool in enum_software:
         
 
 def id_services(scandir):
-    print("{0}[+]{1} Checking for Enumeration Scans".format(bcolors.GREEN, bcolors.ENDC))
+    print("{0}[>]{1} Checking for Enumeration Scans".format(bcolors.BLUE, bcolors.ENDC))
     # Variables
     global service_dict
     global script_dict
@@ -46,7 +46,7 @@ def id_services(scandir):
             service_dict[service] = ports
             
     if len(service_dict) > 0:
-        print("{0}[+]{1} Running Detailed Enumeration Scans on {2} Services\n".format(bcolors.GREEN, bcolors.ENDC, str(len(service_dict))))
+        print("{0}[>]{1} Running Detailed Enumeration Scans on {2} Services\n".format(bcolors.BLUE, bcolors.ENDC, str(len(service_dict))))
         
         
 def tool_scans((ipaddr, scandir, service, port, quiet)):
@@ -116,7 +116,7 @@ def tool_scans((ipaddr, scandir, service, port, quiet)):
                     print("{0}[!]{1} Scan Cancelled! Moving On!".format(bcolors.RED, bcolors.ENDC))
         else: pass
         
-        if ('nbtscan') in installed_tools):
+        if ('nbtscan' in installed_tools):
             ENUM_SCAN = 'nbtscan {0} | tee {1}/nbtscan.txt'.format(ipaddr, scandir)
             if quiet is not True:
                 print("{0}[+]{1} Running NBTScan on {0}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))

