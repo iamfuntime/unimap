@@ -29,7 +29,7 @@ def unicornscan(ipaddr, scandir, interface, speed, ports, protocol, quiet):
             .format(bcolors.GREEN, bcolors.ENDC, interface, proto, speed, scandir, protocol, ipaddr))
     else: pass
     with open(os.devnull, 'w') as FNULL:
-        subprocess.check_call(UNICORNSCAN, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
+        subprocess.call(UNICORNSCAN, stdout=FNULL, shell=True)
     
         
         
@@ -38,7 +38,6 @@ def basic_nmap(ipaddr, scandir, nmap_options, protocol, quiet):
         results = f.readlines()
         #ports = ','.join(i.split()[2] for i in results)
         ports = ','.join(i.split('[')[1].split(']')[0].replace(' ', '') for i in results)
-        print(ports)
     
     BASIC_NMAP = "nmap {0} -p{1} -oA {2}/basic_nmap {3}".format(nmap_options, ports, scandir, ipaddr)
     print("{0}[+]{1} Starting Basic Nmap Scan for {2}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
@@ -47,7 +46,7 @@ def basic_nmap(ipaddr, scandir, nmap_options, protocol, quiet):
             .format(bcolors.GREEN, bcolors.ENDC, nmap_options, ports, scandir, ipaddr))
     else: pass
     with open(os.devnull, 'w') as FNULL:
-        subprocess.check_call(BASIC_NMAP, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
+        subprocess.call(BASIC_NMAP, stdout=FNULL, shell=True)
         
         
 def quick_scan(ipaddr, scandir, protocol, interface, speed, nmap_options, ports, quiet):

@@ -46,10 +46,10 @@ def id_services(scandir):
             service_dict[service] = ports
             
     if len(service_dict) > 0:
-        print("{0}[+]{1} Running Detailed Nmap Scans on {2} Services".format(bcolors.GREEN, bcolors.ENDC, str(len(service_dict))))
+        print("{0}[+]{1} Running Detailed Enumeration Scans on {2} Services\n".format(bcolors.GREEN, bcolors.ENDC, str(len(service_dict))))
         
         
-def tool_scans(ipaddr, scandir, service, port, quiet):
+def tool_scans((ipaddr, scandir, service, port, quiet)):
     if ('http' == service) or ('ssl/http' == service) or ('http' in service) or ('https' in service):
         if ('nikto' in installed_tools):
             NIKTO_SCAN = 'nikto -h {0} -p {1} | tee {2}/nikto_{1}.txt'.format(ipaddr, port, scandir, port)
@@ -59,6 +59,7 @@ def tool_scans(ipaddr, scandir, service, port, quiet):
             with open(os.devnull, 'w') as FNULL:
                 try:
                     subprocess.call(NIKTO_SCAN, stdout=FNULL, shell=True)
+                    print("{0}[+]{1} Finished running Nikto Scan".format(bcolors.GREEN, bcolors.ENDC))
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("command '{}' return with error (code {}): {}".format(
                         e.cmd, e.returncode, e.output))
@@ -74,6 +75,7 @@ def tool_scans(ipaddr, scandir, service, port, quiet):
             with open(os.devnull, 'w') as FNULL:
                 try:
                     subprocess.call(DIRB_SCAN, stdout=FNULL, shell=True)
+                    print("{0}[+]{1} Finished running Dirb Scan".format(bcolors.GREEN, bcolors.ENDC))
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("command '{}' return with error (code {}): {}".format(
                         e.cmd, e.returncode, e.output))
@@ -89,6 +91,7 @@ def tool_scans(ipaddr, scandir, service, port, quiet):
             with open(os.devnull, 'w') as FNULL:
                 try:
                     subprocess.call(CURL_SCAN, stdout=FNULL, shell=True)
+                    print("{0}[+]{1} Finished running curl".format(bcolors.GREEN, bcolors.ENDC))
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("command '{}' return with error (code {}): {}".format(
                         e.cmd, e.returncode, e.output))
@@ -105,6 +108,7 @@ def tool_scans(ipaddr, scandir, service, port, quiet):
             with open(os.devnull, 'w') as FNULL:
                 try:
                     subprocess,call(ENUM_SCAN, stdout=FNULL, shell=True)
+                    print("{0}[+]{1} Finished running Enum4Linux Scan".format(bcolors.GREEN, bcolors.ENDC))
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("command '{}' return with error (code {}): {}".format(
                         e.cmd, e.returncode, e.output))
@@ -121,6 +125,7 @@ def tool_scans(ipaddr, scandir, service, port, quiet):
             with open(os.devnull, 'w') as FNULL:
                 try:
                     subprocess.call(BANNER_GRAB, stdout=FNULL, shell=True)
+                    print("{0}[+]{1} Finished running banner grab".format(bcolors.GREEN, bcolors.ENDC))
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("command '{}' return with error (code {}): {}".format(
                         e.cmd, e.returncode, e.output))
@@ -137,6 +142,7 @@ def tool_scans(ipaddr, scandir, service, port, quiet):
             with open(os.devnull, 'w') as FNULL:
                 try:
                     subprocess.call(SMTP_SCAN, stdout=FNULL, shell=True)
+                    print("{0}[+]{1} Finished enumerating SMTP Users".format(bcolors.GREEN, bcolors.ENDC))
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("command '{}' return with error (code {}): {}".format(
                         e.cmd, e.returncode, e.output))
@@ -153,6 +159,7 @@ def tool_scans(ipaddr, scandir, service, port, quiet):
             with open(os.devnull, 'w') as FNULL:
                 try:
                     subprocess.call(SNMP_SCAN, stdout=FNULL, shell=True)
+                    print("{0}[+]{1} Finished Running SNMP with OneSixtyOne".format(bcolors.GREEN, bcolors.ENDC))
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("command '{}' return with error (code {}): {}".format(
                         e.cmd, e.returncode, e.output))
@@ -168,22 +175,25 @@ def tool_scans(ipaddr, scandir, service, port, quiet):
             with open(os.devnull, 'w') as FNULL:
                 try:
                     subprocess.call(SNMP_SCAN, stdout=FNULL, shell=True)
+                    print("{0}[+]{1} Finished Running SNMP with SNMPWalk".format(bcolors.GREEN, bcolors.ENDC))
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("command '{}' return with error (code {}): {}".format(
                         e.cmd, e.returncode, e.output))
                 except KeyboardInterrupt:
                     print("{0}[!]{1} Scan Cancelled! Moving On!".format(bcolors.RED, bcolors.ENDC))
         else: pass
+
     elif ('ssh' == service) or ('ssh' in service):
         if ('hydra' in installed_tools):
-            SSH_SCAN = 'hydra -f -V -t 1 -l root -P /usr/share/wordlists/rockyou.txt -s {0} {1} ssh'.format(
-                port, ipaddr)
+            SSH_SCAN = 'hydra -f -V -t 1 -l root -P /usr/share/wordlists/rockyou.txt -s {0} {1} ssh | tee {2}/hydra.txt'
+                .format(port, ipaddr, scandir)
             if quiet is not True:
                 print("{0}[+]{1} Running Hydra Against SSH".format(bcolors.GREEN, bcolors.ENDC))
             else: pass
             with open(os.devnull, 'w') as FNULL:
                 try:
                     subprocess.call(SSH_SCAN, stdout=FNULL, shell=True)
+                    print("{0}[+]{1} Finished Running Hydra Against SSH".format(bcolors.GREEN, bcolors.ENDC))
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("command '{}' return with error (code {}): {}".format(
                         e.cmd, e.returncode, e.output))
@@ -192,14 +202,14 @@ def tool_scans(ipaddr, scandir, service, port, quiet):
         else: pass
         
         if ('medusa' in installed_tools):
-            SSH_SCAN = 'medus -u root -p /usr/share/wordlists/rockyou.txt -e ns -h {0} - {1} -M ssh'.format(
-                ipaddr, port)
+            SSH_SCAN = 'medusa -u root -p /usr/share/wordlists/rockyou.txt -e ns -h {0} - {1} -M ssh | tee {2}/medusa.txt'.format(ipaddr, port, scandir)
             if quiet is not True:
                 print("{0}[+]{1} Running Medusa Against SSH".format(bcolors.GREEN, bcolors.ENDC))
             else: pass
             with open(os.devnull, 'w') as FNULL:
                 try:
                     subprocess.call(SSH_SCAN, stdout=FNULL, shell=True)
+                    print("{0}[+]{1} Finished Running Medusa Against SSH".format(bcolors.GREEN, bcolors.ENDC))
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("command '{}' return with error (code {}): {}".format(
                         e.cmd, e.returncode, e.output))
@@ -212,7 +222,7 @@ def enumerate_scan(ipaddr, scandir, quiet):
     id_services(scandir)
     jobs = []
     for service in service_dict:
-        for ports in service_dict[service]:
+        for port in service_dict[service]:
             port = port.split('/')[0]
             jobs.append((ipaddr, scandir, service, port, quiet))
             

@@ -57,14 +57,14 @@ def id_services(scandir):
             service_dict[service] = ports
             
     if len(service_dict) > 0:
-        print("{0}[+]{1} Running Detailed Nmap Scans on {2} Services".format(bcolors.GREEN, bcolors.ENDC, str(len(service_dict))))
+        print("{0}[+]{1} Running Detailed Nmap Scans on {2} Services\n".format(bcolors.GREEN, bcolors.ENDC, str(len(service_dict))))
 
 
 def nmap_scan((port, scripts, scandir, service, ipaddr, quiet)):
     NMAP_SCAN = 'nmap -Pn -n --open -T4 -p {} --script="{}" -oN {}/nmap_{}.nmap {}'.format(port,
             scripts, scandir, service, ipaddr)
     if quiet is not True:
-        print("{0}[+]{1} {2}".format(bcolors.GREEN, bcolors.ENDC, NMAP_SCAN))
+        print("{0}[+]{1} {2}\n".format(bcolors.GREEN, bcolors.ENDC, NMAP_SCAN))
     else: pass
     with open(os.devnull, 'w') as FNULL:
         try:

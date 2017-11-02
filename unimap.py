@@ -11,6 +11,7 @@ from src.core import *
 from src.quick_scan import quick_scan
 from src.file_helper import check_dirs
 from src.detailed_nmap import detailed_nmap
+from src.enumerate_scan import enumerate_scan
 
 # Running as root?
 if os.geteuid() != 0:
