@@ -149,9 +149,9 @@ def main():
             detailed_nmap(ipaddr, scandir, quiet)
         else: sys.exit()
         
-        #if enumerate is True:
-        #    enumerate_scan(ipaddr, scandir, quiet)
-        #else: sys.exit()
+        if enumerate is True:
+            enumerate_scan(ipaddr, scandir, quiet)
+        else: sys.exit()
         
         print("\n{0}[>]{1} Scans Complete! Results are located in {2}".format(bcolors.BLUE, bcolors.ENDC, scandir))
 

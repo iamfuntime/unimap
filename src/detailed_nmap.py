@@ -31,6 +31,7 @@ def id_services(scandir):
         'microsoft-ds': WIN_SCRIPTS,
         'rpcbind': RPC_SCRIPTS,
         'ms-wbt-server': RDP_SCRIPTS,
+        'snmp': SNMP_SCRIPTS,
         'ms-sql': MSSQL_SCRIPTS,
         'oracle': ORACLE_SCRIPTS,
         'mysql': MYSQL_SCRIPTS,
@@ -75,7 +76,6 @@ def nmap_scan((port, scripts, scandir, service, ipaddr, quiet)):
 
 def detailed_nmap(ipaddr, scandir, quiet):
     id_services(scandir)
-   
     jobs = []
     for service in service_dict:
         for script in script_dict:
