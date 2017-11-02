@@ -115,6 +115,22 @@ def tool_scans((ipaddr, scandir, service, port, quiet)):
                 except KeyboardInterrupt:
                     print("{0}[!]{1} Scan Cancelled! Moving On!".format(bcolors.RED, bcolors.ENDC))
         else: pass
+        
+        if ('nbtscan') in installed_tools):
+            ENUM_SCAN = 'nbtscan {0} | tee {1}/nbtscan.txt'.format(ipaddr, scandir)
+            if quiet is not True:
+                print("{0}[+]{1} Running NBTScan on {0}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
+            else: pass
+            with open(os.devnull, 'w') as FNULL:
+                try:
+                    subprocess,call(ENUM_SCAN, stdout=FNULL, shell=True)
+                    print("{0}[+]{1} Finished running NBTScan Scan".format(bcolors.GREEN, bcolors.ENDC))
+                except subprocess.CalledProcessError as e:
+                    raise RuntimeError("command '{}' return with error (code {}): {}".format(
+                        e.cmd, e.returncode, e.output))
+                except KeyboardInterrupt:
+                    print("{0}[!]{1} Scan Cancelled! Moving On!".format(bcolors.RED, bcolors.ENDC))
+        else: pass
                     
     elif ('telnet' == service) or ('telnet' in service):
         if ('nc' in installed_tools):

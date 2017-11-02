@@ -24,7 +24,7 @@ class bcolors:
 # Software Dependencies
 standard_software = ['nmap', 'unicornscan']
 enum_software = ['nikto', 'wpscan', 'dirb', 'onesixtyone', 'snmpwalk', 'nc', 
-                 'enum4linux', 'smtp-user-enum',]
+                 'enum4linux', 'smtp-user-enum', 'nbtscan']
 crack_software = ['hydra', 'medusa', 'ncrack']
     
 # UNIMAP Banner    

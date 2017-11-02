@@ -54,7 +54,7 @@ def id_services(scandir):
 def crack_services((ipaddr, scandir, service, port, quiet)):
     if ('ssh' == service) or ('ssh' in service):
         if ('hydra' in installed_tools):
-            SSH_CRACK = 'hydra -f -V -t 1 -l root -P /usr/share/wordlists/rockyou.txt -s {0} {1} ssh | tee {2}/hydra.txt'
+            SSH_CRACK = 'hydra -f -V -t 1 -l root -P {2}/passlist.txt -s {0} {1} ssh | tee {2}/hydra.txt'
                 .format(port, ipaddr, scandir)
             if quiet is not True:
                 print("{0}[+]{1} Running Hydra Against SSH".format(bcolors.GREEN, bcolors.ENDC))
@@ -71,7 +71,7 @@ def crack_services((ipaddr, scandir, service, port, quiet)):
         else: pass
         
         if ('medusa' in installed_tools):
-            SSH_CRACK = 'medusa -u root -p /usr/share/wordlists/rockyou.txt -e ns -h {0} - {1} -M ssh | tee {2}/medusa.txt'.format(ipaddr, port, scandir)
+            SSH_CRACK = 'medusa -u root -p {2}/passlist.txt -e ns -h {0} - {1} -M ssh | tee {2}/medusa.txt'.format(ipaddr, port, scandir)
             if quiet is not True:
                 print("{0}[+]{1} Running Medusa Against SSH".format(bcolors.GREEN, bcolors.ENDC))
             else: pass
@@ -105,7 +105,7 @@ def crack_services((ipaddr, scandir, service, port, quiet)):
         
     elif ('msdrdp' in service) or ('ms-wbt-server' in service):
         if ('ncrack') in installed_tools:
-            RDP_CRACK = 'ncrack -vv --user administrator -P /usr/share/wordlists/rockyou.txt rdp://{0} | tee {1}/ncrack.txt'.format(
+            RDP_CRACK = 'ncrack -vv --user administrator -P {0}/passlist.txt rdp://{1} | tee {0}/ncrack.txt'.format(
                 ipaddr, scandir)
             if quiet is not True:
                 print("{0}[+]{1} Running NCrack Against RDP".format(bcolors.GREEN, bcolors.ENDC))
