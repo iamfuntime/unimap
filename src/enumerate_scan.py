@@ -84,19 +84,59 @@ def tool_scans((ipaddr, scandir, service, port, quiet)):
         else: pass
         
         if ('curl' in installed_tools):
-            CURL_SCAN = 'curl -i {0}'.format(ipaddr)
+            CURL_SCAN = 'curl -i {0} | tee {1}/webheaders.txt'.format(ipaddr, scandir)
+            HTML2TEXT = 'curl -i {0} | html2text | tee {1}/html2text.txt'.format(ipaddr, scandir)
             if quiet is not True:
                 print("{0}[+]{1} Grabbing Web Headers on {2}:{3}".format(bcolors.GREEN, bcolors.ENDC, ipaddr, port))
             else: pass
             with open(os.devnull, 'w') as FNULL:
                 try:
                     subprocess.call(CURL_SCAN, stdout=FNULL, shell=True)
+                    subprocess.call(HTML2TEXT, stdout=FNULL, shell=True)
                     print("{0}[+]{1} Finished running curl".format(bcolors.GREEN, bcolors.ENDC))
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError("command '{}' return with error (code {}): {}".format(
                         e.cmd, e.returncode, e.output))
                 except KeyboardInterrupt:
                     print("{0}[!]{1} Scan Cancelled! Moving On!".format(bcolors.RED, bcolors.ENDC))
+        else: pass
+
+        if ('java' in installed_tools):
+            JAVA_SCAN = 'java -jar /usr/share/dirbuster/DirBuster-1.0-RC1.jar -H -l /usr/share/dirbuster/wordlists/\
+                directory-list-2.3-medium.txt -r {0}/dirbuster.txt -u http://{1}:{2}'.format(scandir, ipaddr, port)
+            if quiet is not True:
+                print("{0}[+]{1} Running DirBuster on {2}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
+            else: pass
+            with open(os.devnull, 'w') as FNULL:
+                try:
+                    subprocess.call(JAVA_SCAN, stdout=FNULL, shell=True)
+                    print("{0}[+]{!} Finished running DirBuster".format(bcolors.GREEN, bcolors.ENDC))
+                except subprocess.CalledProcessError as e:
+                    raise RuntimeError("command '{}' return with error (code {}): {}".format(
+                        e.cmd, e.returncode, e.output))
+                except KeyboardInterrupt:
+                    print("{0}[!]{1} Scan Cancelled! Moving On!".format(bcolors.RED, bcolors.ENDC))
+        else: pass
+
+        if ('gobuster' in installed_tools):
+            try:
+                os.stat('/usr/share/seclists/Discovery/Web-Content')
+                GOBUSTER_COMMON = 'gobuster -w /usr/share/seclists/Discovery/Web_Content/common.txt -u http://{0}:{1} -s '200,204,301,302,307,403,500' -e > {2}/gobuster_common.txt -t 50'.format(ipaddr, port, scandir)
+                GOBUSTER_CGIS = 'gobuster -w /usr/share/seclists/Discovery/Web_Content/cgis.txt -u http://{0}:{1} -s '200,204,301,302,307,403,500' -e > {2}/gobuster_cgis.txt -t 50'.format(ipaddr, port, scandir)
+                if quiet is not True:
+                    print("{0}[+]{1} Running GoBuster on {1}".format(bcolors.GREEN, bcolors.ENDC, ipaddr))
+                else: pass
+                with open(os.devnull, 'w') as FNULL:
+                    try:
+                        subprocess.call(GOBUSTER_COMMON, stdout=FNULL, shell=True)
+                        subprocess.call(GOBUSTER_CGIS, stdout=FNULL, shell=True)
+                        print("{0}[+]{1} Finished running GoBuster".format(bcolors.GREEN, bcolors.ENDC))
+                    except subprocess.CalledProcessError as e:
+                        raise RuntimeError("command '{}' return with error (code {}): {}".format(
+                            e.cmd, e.returncode, e.output))
+                    except KeyboardInterrupt:
+                        print("{0}[!]{1} Scan Cancelled! Moving On!".format(bcolors.RED, bcolors.ENDC))
+            except: pass
         else: pass
         
     elif ('microsoft-ds' == service) or ('microsoft-ds' in service):
