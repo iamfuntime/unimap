@@ -12,7 +12,7 @@ from src.core import *
 
 def scan_func(port, service, scripts, scandir, ipaddr):
     global NMAP_SCAN
-    NMAP_SCAN = 'nmap -Pn -n --open -T4 -p {} --script="{}" -oN {}/nmap_{}.nmap {}'.format(port, 
+    NMAP_SCAN = 'nmap -Pn -n --open -T4 -p {0} --script="{1}" -oN {2}/nmap_{3}.nmap {4}'.format(port, 
         scripts, scandir, service, ipaddr)
     return NMAP_SCAN
 
@@ -57,21 +57,23 @@ def id_services(scandir):
             service_dict[service] = ports
             
     if len(service_dict) > 0:
-        print("{0}[>]{1} Running Detailed Nmap Scans on {2} Services\n".format(bcolors.BLUE, bcolors.ENDC, str(len(service_dict))))
+        print("{0}[+]{1} Running Detailed Nmap Scans on {2} Services\n".format(bcolors.GREEN, bcolors.ENDC, str(len(service_dict))))
 
 
 def nmap_scan((port, scripts, scandir, service, ipaddr, quiet)):
-    NMAP_SCAN = 'nmap -Pn -n --open -T4 -p {} --script="{}" -oN {}/nmap_{}.nmap {}'.format(port,
+    NMAP_SCAN = 'nmap -Pn -n --open -T4 -p {0} --script="{1}" -oN {2}/nmap_{3}.nmap {4}'.format(port,
             scripts, scandir, service, ipaddr)
     if quiet is not True:
-        print("{0}[+]{1} {2}\n".format(bcolors.GREEN, bcolors.ENDC, NMAP_SCAN))
+        print("{0}[*]{1} Running Nmap Script Scans on {2}".format(bcolors.YELLOW, bcolors.ENDC, service))
     else: pass
     with open(os.devnull, 'w') as FNULL:
         try:
             subprocess.call(NMAP_SCAN, stdout=FNULL, shell=True)
-            print("{0}[+]{1} Finished Scanning for {2}".format(bcolors.GREEN, bcolors.ENDC, service))
+            if quiet is not True:
+                print("{0}[+]{1} Finished Nmap Script Scans on {2}".format(bcolors.GREEN, bcolors.ENDC, service))
+            else: pass
         except subprocess.CalledProcessError as e:
-            raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+            raise RuntimeError("command '{0}' return with error (code {1}): {2}".format(e.cmd, e.returncode, e.output))
 
 
 def detailed_nmap(ipaddr, scandir, quiet):
@@ -85,10 +87,5 @@ def detailed_nmap(ipaddr, scandir, quiet):
                     port = port.split('/')[0]
                     jobs.append((port, scripts, scandir, service, ipaddr, quiet))
 
-    # Establish multithreading
-    #jobs = []
-    #p = multiprocessing.Process(target=nmap_scan, args=(ipaddr, scandir, service_dict, quiet))
-    #jobs.append(p)
-    #p.start()
     pool = ThreadPool(4)
     pool.map(nmap_scan, jobs)

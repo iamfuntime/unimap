@@ -23,6 +23,7 @@ class bcolors:
     
 # Software Dependencies
 standard_software = ['nmap', 'unicornscan']
+additional_software = ['amap']
 enum_software = ['nikto', 'wpscan', 'dirb', 'onesixtyone', 'snmpwalk', 'nc', 
                  'enum4linux', 'smtp-user-enum', 'nbtscan', 'java', 'gobuster']
 crack_software = ['hydra', 'medusa', 'ncrack']

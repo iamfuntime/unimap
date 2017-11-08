@@ -6,12 +6,12 @@ import subprocess
 import socket
 from argparse import ArgumentParser
 
-import src
+# import src
 from src.core import *
 from src.quick_scan import quick_scan
 from src.file_helper import check_dirs
 from src.detailed_nmap import detailed_nmap
-from src.enumerate_scan import enumerate_scan
+from src.enum_scan import enum_scan
 from src.crack_scan import brute_force
 
 # Running as root?
@@ -69,7 +69,7 @@ def main():
                         type=str, 
                         help="Set NMAP options. Include in double quotes")
     parser.add_argument("-e",
-                        dest="enumerate",
+                        dest="enum",
                         default=False,
                         required=False,
                         action="store_true",
@@ -101,7 +101,7 @@ def main():
                         help="Suppress banner and headers to limit results")
     arguments = parser.parse_args()
 
-    if arguments.quick is True and arguments.enumerate is True:
+    if arguments.quick is True and arguments.enum is True:
         print("{0}[!]{1} Error! Unable to do a quick scan, and a deep enumeration scan"
             .format(bcolors.RED, bcolors.ENDC))
         sys.exit(0)
@@ -128,7 +128,7 @@ def main():
         print("{0}[>] {1}Interface: " + arguments.interface).format(bcolors.BLUE, bcolors.ENDC)
         print("{0}[>] {1}Unicornscan Speed: " + arguments.speed).format(bcolors.BLUE, bcolors.ENDC)
         print("{0}[>] {1}NMAP Options: " + str(arguments.nmap_options)).format(bcolors.BLUE, bcolors.ENDC)
-        print("{0}[>] {1}Enumerate: " + str(arguments.enumerate)).format(bcolors.BLUE, bcolors.ENDC)
+        print("{0}[>] {1}Enumerate: " + str(arguments.enum)).format(bcolors.BLUE, bcolors.ENDC)
         print("{0}[>] {1}Quick Scan?: " + str(arguments.quick)).format(bcolors.BLUE, bcolors.ENDC)
         if arguments.ports == 'D':
             print("{0}[>] {1}Port Selection: Default\n").format(bcolors.BLUE, bcolors.ENDC)
@@ -143,7 +143,7 @@ def main():
     interface = arguments.interface
     speed = arguments.speed
     nmap_options = arguments.nmap_options
-    enumerate = arguments.enumerate
+    enum = arguments.enum
     crack = arguments.crack
     ports = arguments.ports
     quick = arguments.quick
@@ -158,8 +158,8 @@ def main():
             detailed_nmap(ipaddr, scandir, quiet)
         else: pass
         
-        if enumerate is True:
-            enumerate_scan(ipaddr, scandir, quiet)
+        if enum is True:
+            enum_scan(ipaddr, scandir, quiet)
         else: pass
         
         if crack is True:
