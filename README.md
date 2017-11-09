@@ -2,7 +2,7 @@
 
 # Credit
 
-This tool was heavily inspired by a few different tools that I came across while studying for my OSCP. After heavily using [Reconnoitre](https://github.com/codingo/Reconnoitre) written by [Codingo](https://www.twitter.com/codingo_). When running this tool, it would make some recommendations on further tools to run. I decided I wanted to have the option to run these automatically. But full Nmap scans can take an extremely long time, so I needed to find something else. In walks [onetwopunch](https://github.com/superkojiman/onetwopunch) which uses unicornscan to scan for open ports and then pushes that to Nmap. I utilized both these ideas. Much of the layout ideas were influenced by [Dave Kennedy](https://www.twitter.com/HackingDave). 
+This tool was heavily inspired by a few different tools that I came across while studying for my OSCP. After heavily using [Reconnoitre](https://github.com/codingo/Reconnoitre) written by [Codingo](https://www.twitter.com/codingo_), it would make some recommendations on further tools to run. But because I'm lazy, I wanted to have the option to run these automatically. But full Nmap scans can take an extremely long time, so I needed to find something else. In walks [onetwopunch](https://github.com/superkojiman/onetwopunch) which uses unicornscan to scan for open ports and then pushes that to Nmap. I utilized both these ideas. Much of the layout ideas were influenced by [Dave Kennedy](https://www.twitter.com/HackingDave). 
 
 # Usage
 
