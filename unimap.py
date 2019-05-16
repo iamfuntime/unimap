@@ -136,7 +136,10 @@ def main():
             print("{0}[>] {1}Port Selection: All\n").format(bcolors.BLUE, bcolors.ENDC)
       
     # Rename Variables
-    hostdir = arguments.output_dir + "/" + arguments.target
+    if arguments.output_dir is not True:
+        hostdir = arguments.output_dir + "/" + arguments.target
+    else:
+        hostdir = arguments.output_dir
     scandir = hostdir + "/scans"
     ipaddr = arguments.target
     protocol = arguments.protocol
