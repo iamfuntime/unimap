@@ -103,10 +103,13 @@ def tool_scans((ipaddr, scandir, service, port, quiet)):
         else: pass
 
         if ('gobuster' in installed_tools):
+            wordlist = '/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt'
+            cgi_wordlist = '/usr/share/wordlists/dirb/vulns/cgis.txt'
             try:
-                os.stat('/usr/share/seclists/Discovery/Web-Content')
-                GOBUSTER_COMMON = "gobuster -w /usr/share/seclists/Discovery/Web_Content/common.txt -u http://{0}:{1} -s '200,204,301,302,307,403,500' -e > {2}/gobuster_common.txt -t 50".format(ipaddr, port, scandir)
-                GOBUSTER_CGIS = "gobuster -w /usr/share/seclists/Discovery/Web_Content/cgis.txt -u http://{0}:{1} -s '200,204,301,302,307,403,500' -e > {2}/gobuster_cgis.txt -t 50".format(ipaddr, port, scandir)
+                os.stat(wordlist)
+                os.stat(cgi_wordlist)
+                GOBUSTER_COMMON = "gobuster -w {0} -u http://{1}:{2} -s '200,204,301,302,307,403,500' -e > {3}/gobuster_common.txt -t 50".format(wordlist, ipaddr, port, scandir)
+                GOBUSTER_CGIS = "gobuster -w {0} -u http://{1}:{2} -s '200,204,301,302,307,403,500' -e > {3}/gobuster_cgis.txt -t 50".format(cgi_wordlist, ipaddr, port, scandir)
                 if quiet is not True:
                     print("{0}[*]{1} Running GoBuster on {1}".format(bcolors.YELLOW, bcolors.ENDC, ipaddr))
                 else: pass
