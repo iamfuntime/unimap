@@ -126,7 +126,7 @@ def tool_scans((ipaddr, scandir, service, port, quiet)):
             except: pass
         else: pass
         
-    elif ('microsoft-ds' == service) or ('microsoft-ds' in service):
+    elif ('microsoft-ds' == service) or ('microsoft-ds' in service) or ('netbios' in service):
         if ('enum4linux' in installed_tools):
             ENUM_SCAN = 'enum4linux {0} | tee {1}/enum4linux.txt'.format(ipaddr, scandir)
             if quiet is not True:

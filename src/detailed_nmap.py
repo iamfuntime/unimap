@@ -61,8 +61,8 @@ def id_services(scandir):
 
 
 def nmap_scan((port, scripts, scandir, service, ipaddr, quiet)):
-    NMAP_SCAN = 'nmap -Pn -n --open -T4 -p {0} --script="{1}" -oN {2}/nmap_{3}.nmap {4}'.format(port,
-            scripts, scandir, service, ipaddr)
+    NMAP_SCAN = 'nmap -Pn -n --open -T4 -p {0} --script="{1}" -oN {2}/nmap_{0}.nmap {3}'.format(port,
+            scripts, scandir, ipaddr)
     if quiet is not True:
         print("{0}[*]{1} Running Nmap Script Scans on {2}".format(bcolors.YELLOW, bcolors.ENDC, service))
     else: pass
