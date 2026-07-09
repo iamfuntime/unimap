@@ -35,6 +35,19 @@ def test_nuclei_runs_on_http(tmp_path):
     assert any(f.severity == "high" for f in findings)
 
 
+def test_nuclei_scans_all_http_services(tmp_path):
+    ctx = _ctx(tmp_path, [Service(port=80, name="http"), Service(port=443, name="https")])
+    runner = FakeRunner().set("nuclei", stdout="")
+    asyncio.run(NucleiScan().run(ctx, runner))
+    argv = runner.calls[0][1]
+    i = argv.index("-u")
+    target_arg = argv[i + 1]
+    # Both services must be in a single comma-joined -u value.
+    assert "http://10.0.0.1:80" in target_arg
+    assert "https://10.0.0.1:443" in target_arg
+    assert "," in target_arg
+
+
 def test_netexec_is_double_gated():
     assert NetexecSpray.lab_only is True
     assert NetexecSpray.brute is True

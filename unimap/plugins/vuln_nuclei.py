@@ -36,7 +36,7 @@ class NucleiScan(Plugin):
 
     async def run(self, ctx: HostContext, runner) -> list[Finding]:
         urls = [http_url(ctx.target.host, s) for s in ctx.http_services()]
-        argv = ["nuclei", "-silent", "-nc", "-u", *urls]
+        argv = ["nuclei", "-silent", "-nc", "-u", ",".join(urls)]
         result = await runner.run("nuclei", argv, timeout=ctx.config.tool_timeout)
         findings = parse_nuclei(result.stdout)
         for f in findings:
