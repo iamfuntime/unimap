@@ -49,10 +49,12 @@ class NmapServiceScan(Plugin):
     async def run(self, ctx: HostContext, runner) -> list[Finding]:
         ports = ",".join(str(p) for p in sorted(ctx.open_ports))
         xml_path = ctx.outdir / "artifacts" / "nmap-service.xml"
+        # Clear any stale XML so a failed/timed-out run can't be read as fresh.
+        xml_path.unlink(missing_ok=True)
         argv = ["nmap", "-sV", "-sC", "-Pn", "-p", ports, "-oX", str(xml_path), ctx.target.host]
         result = await runner.run("nmap-service", argv, timeout=ctx.config.tool_timeout)
         try:
-            xml_text = xml_path.read_text()
+            xml_text = xml_path.read_text(encoding="utf-8", errors="replace")
         except FileNotFoundError:
             xml_text = result.stdout
         try:

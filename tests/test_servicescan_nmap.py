@@ -57,3 +57,19 @@ def test_plugin_matches_only_with_open_ports():
     assert NmapServiceScan().matches(ctx) is False
     ctx.open_ports = [80]
     assert NmapServiceScan().matches(ctx) is True
+
+
+def test_plugin_ignores_stale_oX_file(tmp_path):
+    (tmp_path / "artifacts").mkdir()
+    stale = tmp_path / "artifacts" / "nmap-service.xml"
+    stale.write_text(
+        '<?xml version="1.0"?><nmaprun><host><ports>'
+        '<port protocol="tcp" portid="21"><state state="open"/><service name="ftp"/></port>'
+        '</ports></host></nmaprun>'
+    )
+    ctx = HostContext(target=Target(raw="h", host="10.0.0.1"), outdir=tmp_path, config=Config())
+    ctx.open_ports = [22]
+    runner = FakeRunner().set("nmap-service", stdout=NMAP_XML)
+    asyncio.run(NmapServiceScan().run(ctx, runner))
+    # Stale ftp:21 must be cleared; services come from this run's stdout (22, 80).
+    assert [s.port for s in ctx.services] == [22, 80]
