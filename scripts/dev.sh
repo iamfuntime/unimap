@@ -9,7 +9,11 @@ case "${1:-}" in
   setup)
     python3 -m venv "$VENV"
     "$VENV/bin/pip" install --upgrade pip >/dev/null
-    "$VENV/bin/pip" install -e ".[dev]"
+    # Do NOT editable-install the package: `pip install -e .` chmods egg-info in
+    # the /mnt/c source tree, which DrvFS rejects (Operation not permitted). The
+    # package is imported straight from the source tree instead — both pytest and
+    # `python -m` put REPO (the cwd) on sys.path.
+    "$VENV/bin/pip" install pytest pyyaml
     ;;
   test)
     shift
