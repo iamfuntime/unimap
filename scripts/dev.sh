@@ -13,7 +13,7 @@ case "${1:-}" in
     # the /mnt/c source tree, which DrvFS rejects (Operation not permitted). The
     # package is imported straight from the source tree instead — both pytest and
     # `python -m` put REPO (the cwd) on sys.path.
-    "$VENV/bin/pip" install pytest pyyaml
+    "$VENV/bin/pip" install "pytest>=8" "pyyaml>=6"
     ;;
   test)
     shift
