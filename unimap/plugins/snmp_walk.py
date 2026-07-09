@@ -6,6 +6,11 @@ from .base import HostContext, Phase, Plugin, register
 
 @register
 class SnmpWalk(Plugin):
+    # LATENT until UDP discovery lands: SNMP is 161/udp, but both portscanners
+    # are TCP-only, so an "snmp" service is never surfaced in a real run and
+    # matches() stays False. This plugin only fires once a UDP discovery step
+    # (e.g. nmap -sU -p161) populates ctx.services with a udp/snmp entry.
+    # See the plan's Backlog: "UDP port discovery".
     name = "snmpwalk"
     phase = Phase.ENUM
     requires = ["snmpwalk"]

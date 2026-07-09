@@ -2443,6 +2443,9 @@ These are additive plugin files following the exact pattern of Tasks 7–11
 (one file, subclass `Plugin`, parse output, return `Finding`s). Pull each into
 its own future task/plan when needed — do not implement inline here:
 
+- **UDP port discovery** (e.g. `nmap -sU -p161` or a dedicated udp portscan phase) — currently both
+  portscanners are TCP-only, so `SnmpWalk` (161/udp) is latent and never fires in a real run. Required to
+  reach any UDP-based service enum. (Whole-branch review, 2026-07-09.)
 - `http_nikto.py`, `http_whatweb.py` — more HTTP enum (default gate).
 - `dns_dnsx.py`, DNS AXFR attempt via `dig` — richer DNS (default gate).
 - `ftp_nmap.py`, `smtp_nmap.py`, `rdp_nmap.py` — targeted non-brute NSE (default gate).
