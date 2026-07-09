@@ -1,0 +1,22 @@
+http:
+  - "Browse http://{host} — review page source, robots.txt, comments"
+  - "Content discovery: feroxbuster -u http://{host} with a larger wordlist"
+https:
+  - "Inspect the TLS cert for hostnames (add to /etc/hosts): openssl s_client -connect {host}:443"
+  - "Browse https://{host} and content-discover"
+microsoft-ds:
+  - "Null session: enum4linux-ng -A {host}"
+  - "Check EternalBlue: nmap -p445 --script smb-vuln-ms17-010 {host}"
+  - "List shares: netexec smb {host} -u '' -p '' --shares"
+netbios-ssn:
+  - "Enumerate SMB: enum4linux-ng -A {host}"
+ssh:
+  - "Note the version and banner; only test creds if in scope (--lab --brute)"
+ftp:
+  - "Try anonymous login: ftp {host} (user: anonymous)"
+snmp:
+  - "Walk common community strings: snmpwalk -v2c -c public {host}"
+domain:
+  - "Attempt a zone transfer: dig axfr @{host} <domain>"
+mysql:
+  - "Test default/blank root creds if in scope; check version for known CVEs"
