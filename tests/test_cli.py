@@ -13,6 +13,12 @@ def test_all_ports_flag():
     assert args.ports_mode == "all"
 
 
+def test_concurrency_zero_parses_as_explicit_zero():
+    # 0 must remain distinguishable from "not passed" (None) downstream.
+    args = build_parser().parse_args(["-t", "10.0.0.1", "--concurrency", "0"])
+    assert args.concurrency == 0
+
+
 def test_brute_requires_lab(capsys):
     rc = main(["-t", "10.0.0.1", "--brute"])
     assert rc == 2
@@ -31,6 +37,12 @@ def test_check_mode_short_circuits(monkeypatch, capsys):
     rc = main(["--check"])
     assert rc == 0
     assert "tool check" in capsys.readouterr().out.lower()
+
+
+def test_bad_config_path_exits_2(tmp_path, capsys):
+    rc = main(["-t", "10.0.0.1", "-c", str(tmp_path / "nope.yaml")])
+    assert rc == 2
+    assert capsys.readouterr().err.strip()
 
 
 def test_full_run_with_no_tools_writes_report(monkeypatch, tmp_path, capsys):

@@ -7,6 +7,8 @@ import sys
 from importlib import import_module, resources
 from pathlib import Path
 
+import yaml
+
 from . import plugins as _plugins_pkg
 from .check import available_binaries, required_binaries, run_check
 from .config import load_config
@@ -71,8 +73,12 @@ def main(argv=None) -> int:
         print("error: --brute requires --lab", file=sys.stderr)
         return 2
 
-    config = load_config(args.config)
-    if args.concurrency:
+    try:
+        config = load_config(args.config)
+    except (OSError, ValueError, yaml.YAMLError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    if args.concurrency is not None:
         config.concurrency = args.concurrency
 
     try:

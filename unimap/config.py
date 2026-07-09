@@ -22,6 +22,8 @@ def load_config(path: str | None) -> Config:
     if not path:
         return cfg
     data: dict[str, Any] = yaml.safe_load(Path(path).read_text()) or {}
+    if data and not isinstance(data, dict):
+        raise ValueError(f"config root must be a mapping, got {type(data).__name__}")
     known = {f.name for f in fields(Config)}
     for key, value in data.items():
         if key in known:
