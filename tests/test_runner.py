@@ -28,3 +28,12 @@ def test_runner_timeout(tmp_path):
     )
     assert res.timed_out is True
     assert res.returncode != 0
+
+
+def test_runner_zero_timeout_is_honored(tmp_path):
+    runner = SubprocessRunner(artifact_dir=tmp_path, default_timeout=300)
+    res = asyncio.run(
+        runner.run("sleepz", [sys.executable, "-c", "import time; time.sleep(3)"], timeout=0)
+    )
+    assert res.timed_out is True
+    assert res.returncode != 0

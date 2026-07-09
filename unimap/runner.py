@@ -23,11 +23,13 @@ class SubprocessRunner:
         self.default_timeout = default_timeout
 
     async def run(self, name: str, argv: list[str], *, timeout: int | None = None) -> ToolResult:
-        timeout = timeout or self.default_timeout
+        if timeout is None:
+            timeout = self.default_timeout
         artifact = self.artifact_dir / f"{name}.txt"
         try:
             proc = await asyncio.create_subprocess_exec(
                 *argv,
+                stdin=asyncio.subprocess.DEVNULL,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -41,7 +43,10 @@ class SubprocessRunner:
             rc = proc.returncode if proc.returncode is not None else -1
         except asyncio.TimeoutError:
             timed_out = True
-            proc.kill()
+            try:
+                proc.kill()
+            except ProcessLookupError:
+                pass
             await proc.wait()
             out_b, err_b, rc = b"", b"", -9
 
