@@ -1,4 +1,5 @@
 from unimap import check
+import unimap.plugins.servicescan_nmap  # noqa: F401 — populate REGISTRY so run_check() has tools to report
 
 
 def test_available_binaries_reports_present_and_missing(monkeypatch):
