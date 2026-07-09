@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import traceback
 from pathlib import Path
 
 from .config import Config
@@ -26,7 +27,7 @@ class Engine:
         self.brute = brute
         self.available = available if available is not None else set()
         self.ports_mode = ports_mode
-        self.sem = asyncio.Semaphore(config.concurrency)
+        self.sem = asyncio.Semaphore(max(1, config.concurrency))
         self.plugins = plugins if plugins is not None else [cls() for cls in REGISTRY]
 
     def _gate_ok(self, p: Plugin) -> bool:
@@ -48,7 +49,7 @@ class Engine:
                         source_tool=plugin.name,
                         severity="error",
                         title=f"{plugin.name} crashed",
-                        detail=repr(exc),
+                        detail=f"{exc!r}\n{traceback.format_exc()}",
                     )
                 ]
 

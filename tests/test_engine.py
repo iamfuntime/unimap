@@ -69,6 +69,20 @@ def test_brute_needs_lab_and_brute(tmp_path):
     assert "creds" in [f.title for f in _scan(_engine(lab=True, brute=True), tmp_path).findings]
 
 
+def test_brute_plugin_skipped_when_lab_false_brute_true(tmp_path):
+    # Highest-stakes negative: brute=True alone (no --lab) must never run at
+    # the engine level, even though the CLI itself rejects this combination
+    # before the engine ever runs.
+    res = _scan(_engine(lab=False, brute=True), tmp_path)
+    assert "creds" not in [f.title for f in res.findings]
+
+
+def test_zero_concurrency_clamped_to_one():
+    # config.concurrency == 0 must not build a permanently-locked semaphore.
+    eng = Engine(Config(concurrency=0), FakeRunner(), plugins=[])
+    assert eng.sem._value == 1
+
+
 def test_requires_gate_skips_when_tool_absent(tmp_path):
     class NeedsTool(Plugin):
         name = "nt"; phase = Phase.ENUM; requires = ["madeuptool"]
@@ -84,3 +98,6 @@ def test_plugin_crash_becomes_error_finding(tmp_path):
     eng = Engine(Config(), FakeRunner(), plugins=[Boom()])
     res = _scan(eng, tmp_path)
     assert any(f.severity == "error" and "boom" in f.title for f in res.findings)
+    crash = next(f for f in res.findings if f.severity == "error" and "boom" in f.title)
+    assert "RuntimeError('kaboom')" in crash.detail
+    assert "Traceback" in crash.detail  # full traceback captured, not just repr(exc)
