@@ -1,7 +1,8 @@
 import json
+from pathlib import Path
 
 from unimap.models import Finding, HostResult, Service, Target
-from unimap.report import render_markdown, suggested_next_steps, write_report
+from unimap.report import load_next_steps, render_markdown, suggested_next_steps, write_report
 
 
 def _result():
@@ -46,3 +47,19 @@ def test_empty_services_renders_placeholder():
     r = HostResult(target=Target(raw="h", host="h"))
     md = render_markdown(r, {})
     assert "No open services found" in md
+
+
+def test_no_findings_renders_placeholder():
+    r = HostResult(
+        target=Target(raw="h", host="h"),
+        services=[Service(port=22, proto="tcp", name="ssh")],
+    )
+    md = render_markdown(r, {})
+    assert "_No findings._" in md
+
+
+def test_load_next_steps_reads_shipped_data():
+    data = load_next_steps(Path(__file__).resolve().parent.parent / "unimap" / "data" / "next_steps.yaml")
+    assert isinstance(data, dict) and data
+    assert "http" in data and "microsoft-ds" in data
+    assert isinstance(data["http"], list) and data["http"]
