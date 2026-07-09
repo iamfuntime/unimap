@@ -8,6 +8,10 @@ enumeration only — never exploitation.
     python3 -m venv ~/.venvs/unimap
     ~/.venvs/unimap/bin/pip install -e ".[dev]"
 
+This editable install works from a native Linux/WSL home directory. On the
+Windows `/mnt/c` mount, `pip install -e .` fails (DrvFS rejects the chmod
+on `egg-info`) — use `scripts/dev.sh` instead (see Development below).
+
 ## Usage
 
     unimap -t 10.10.10.10                 # exam-compliant: single host
@@ -28,8 +32,14 @@ tool output under `artifacts/`.
 
 ## Development
 
-    scripts/dev.sh setup      # create venv + editable install
+    scripts/dev.sh setup      # create venv, install deps (no editable install)
     scripts/dev.sh test       # run the pytest suite (no real tools needed)
+
+`dev.sh setup` deliberately skips `pip install -e .`: on the `/mnt/c` DrvFS
+mount, the editable install's chmod on `egg-info` is rejected. Instead it
+installs dependencies directly into the venv, and the package is imported
+straight from the source tree (pytest and `python -m` both put the repo
+root on `sys.path`).
 
 Design spec: `docs/superpowers/specs/2026-07-08-unimap-v2-modernization-design.md`.
 Adding a tool = one new file in `unimap/plugins/` subclassing `Plugin`.
