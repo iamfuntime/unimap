@@ -34,8 +34,11 @@ def _expand_token(token: str, *, lab: bool, resolve: Callable[[str], list[str]])
     if "/" in token:
         if not lab:
             raise TargetError(f"CIDR '{token}' requires --lab")
-        net = ipaddress.ip_network(token, strict=False)
-        hosts = list(net.hosts()) or [net.network_address]
+        try:
+            net = ipaddress.ip_network(token, strict=False)
+        except ValueError as exc:
+            raise TargetError(f"invalid CIDR '{token}': {exc}") from exc
+        hosts = list(net.hosts())
         return [Target(raw=token, host=str(ip), is_ip=True) for ip in hosts]
     try:
         ip = ipaddress.ip_address(token)
@@ -45,7 +48,9 @@ def _expand_token(token: str, *, lab: bool, resolve: Callable[[str], list[str]])
     addrs = resolve(token)
     if not addrs:
         raise TargetError(f"could not resolve '{token}'")
-    return [Target(raw=token, host=addrs[0], is_ip=True)]
+    ipv4 = [a for a in addrs if ":" not in a]
+    host = ipv4[0] if ipv4 else addrs[0]
+    return [Target(raw=token, host=host, is_ip=True)]
 
 
 def parse_targets(

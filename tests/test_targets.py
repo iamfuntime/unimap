@@ -41,3 +41,18 @@ def test_blank_and_comment_lines_skipped(tmp_path):
     f.write_text("# header\n10.0.0.1\n\n")
     ts = parse_targets(f"@{f}", lab=True)
     assert [t.host for t in ts] == ["10.0.0.1"]
+
+def test_hostname_prefers_ipv4():
+    ts = parse_targets("dual.example", lab=False, resolve=lambda h: ["2606:2800::1", "93.184.216.34"])
+    assert ts[0].host == "93.184.216.34"
+    assert len(ts) == 1
+
+def test_hostname_ipv6_only_ok():
+    ts = parse_targets("v6.example", lab=False, resolve=lambda h: ["2606:2800::1"])
+    assert ts[0].host == "2606:2800::1"
+
+def test_malformed_cidr_raises_targeterror():
+    import pytest
+    from unimap.targets import TargetError
+    with pytest.raises(TargetError):
+        parse_targets("10.0.0.1/33", lab=True)
