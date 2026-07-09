@@ -668,6 +668,7 @@ git commit -m "feat: add async subprocess runner and FakeRunner test double"
   - `Phase(IntEnum)`: `DISCOVERY=1, PORTSCAN=2, SERVICE_ID=3, ENUM=4, VULN=5, CREDS=6, REPORT=7`.
   - `HostContext(target, outdir:Path, config:Config, lab=False, brute=False, available:set[str]={}, ports_mode="top", open_ports:list[int]=[], services:list[Service]=[])` with `.services_named(*names)->list[Service]` and `.http_services()->list[Service]`.
   - `Plugin(ABC)` with class attrs `name:str`, `phase:Phase`, `lab_only:bool=False`, `brute:bool=False`, `requires:list[str]=[]`; methods `matches(ctx)->bool` (default `True`) and `abstract async run(ctx, runner)->list[Finding]`.
+  - `http_url(host:str, s:Service)->str` — module-level helper returning the base URL for an HTTP(S) service (`https` when `tunnel=="ssl"` or `"https" in name` or `port==443`). Shared by the httpx/feroxbuster/nuclei plugins so the scheme rule lives in one place.
   - `REGISTRY:list[type[Plugin]]` and `register(cls)` decorator.
 - **Pipeline contract:** plugins communicate state by *mutating* `ctx` — portscan sets `ctx.open_ports`, service-id appends to `ctx.services`; `run()` returns only `Finding`s.
 
@@ -678,7 +679,7 @@ from pathlib import Path
 
 from unimap.config import Config
 from unimap.models import Service, Target
-from unimap.plugins.base import REGISTRY, HostContext, Phase, Plugin, register
+from unimap.plugins.base import REGISTRY, HostContext, Phase, Plugin, http_url, register
 
 
 def _ctx():
@@ -687,6 +688,12 @@ def _ctx():
 
 def test_phase_ordering():
     assert Phase.PORTSCAN < Phase.SERVICE_ID < Phase.ENUM < Phase.VULN < Phase.CREDS
+
+
+def test_http_url_scheme():
+    assert http_url("10.0.0.1", Service(port=80, name="http")) == "http://10.0.0.1:80"
+    assert http_url("10.0.0.1", Service(port=443, name="https", tunnel="ssl")) == "https://10.0.0.1:443"
+    assert http_url("10.0.0.1", Service(port=8080, name="http-proxy")) == "http://10.0.0.1:8080"
 
 
 def test_register_adds_to_registry():
@@ -781,6 +788,12 @@ class HostContext:
         return out
 
 
+def http_url(host: str, s: Service) -> str:
+    """Base URL for an HTTP(S) service on host. Shared by http/vuln plugins."""
+    https = s.tunnel == "ssl" or "https" in s.name or s.port == 443
+    return f"{'https' if https else 'http'}://{host}:{s.port}"
+
+
 class Plugin(ABC):
     name: str = "plugin"
     phase: Phase = Phase.ENUM
@@ -804,7 +817,7 @@ def register(cls: type[Plugin]) -> type[Plugin]:
     return cls
 ```
 
-- [ ] **Step 4: Run to verify it passes** — `dev.sh test tests/test_base.py -v` → `5 passed`.
+- [ ] **Step 4: Run to verify it passes** — `dev.sh test tests/test_base.py -v` → `6 passed`.
 
 - [ ] **Step 5: Commit**
 
@@ -1173,8 +1186,8 @@ git commit -m "feat: add rustscan portscan plugin with nmap fallback"
 
 **Interfaces:**
 - Consumes: `ctx.http_services()`, `ctx.target.host`, `ctx.config.http_wordlist`, `ctx.outdir`.
-- Produces: `_url_for(host, service)->str` (shared helper, defined in each module); `HttpxProbe` (`phase=ENUM`, `requires=["httpx"]`, matches when http services present); `parse_feroxbuster(text)->list[tuple[status,size,url]]`; `Feroxbuster` (`phase=ENUM`, `requires=["feroxbuster"]`).
-- **Scheme rule:** `https` when `service.tunnel == "ssl"` or `"https" in name` or `port == 443`, else `http`.
+- Produces: `HttpxProbe` (`phase=ENUM`, `requires=["httpx"]`, matches when http services present); `parse_feroxbuster(text)->list[tuple[status,size,url]]`; `Feroxbuster` (`phase=ENUM`, `requires=["feroxbuster"]`).
+- **Uses** `http_url(host, service)` imported from `.base` for the scheme rule (`https` when `tunnel=="ssl"` or `"https" in name` or `port==443`, else `http`). Do NOT redefine it locally.
 
 - [ ] **Step 1: Write the failing test** — `tests/test_http_plugins.py`
 
@@ -1236,14 +1249,8 @@ def test_feroxbuster_emits_findings(tmp_path):
 ```python
 from __future__ import annotations
 
-from ..models import Finding, Service
-from .base import HostContext, Phase, Plugin, register
-
-
-def _url_for(host: str, s: Service) -> str:
-    https = s.tunnel == "ssl" or "https" in s.name or s.port == 443
-    scheme = "https" if https else "http"
-    return f"{scheme}://{host}:{s.port}"
+from ..models import Finding
+from .base import HostContext, Phase, Plugin, http_url, register
 
 
 @register
@@ -1258,7 +1265,7 @@ class HttpxProbe(Plugin):
     async def run(self, ctx: HostContext, runner) -> list[Finding]:
         findings: list[Finding] = []
         for s in ctx.http_services():
-            url = _url_for(ctx.target.host, s)
+            url = http_url(ctx.target.host, s)
             argv = ["httpx", "-u", url, "-title", "-status-code", "-tech-detect", "-no-color", "-silent"]
             result = await runner.run(f"httpx-{s.port}", argv, timeout=ctx.config.tool_timeout)
             line = result.stdout.strip()
@@ -1282,16 +1289,10 @@ from __future__ import annotations
 
 import re
 
-from ..models import Finding, Service
-from .base import HostContext, Phase, Plugin, register
+from ..models import Finding
+from .base import HostContext, Phase, Plugin, http_url, register
 
 _FEROX_RE = re.compile(r"^\s*(\d{3})\s+\w+\s+.*?(\d+)c\s+(https?://\S+)")
-
-
-def _url_for(host: str, s: Service) -> str:
-    https = s.tunnel == "ssl" or "https" in s.name or s.port == 443
-    scheme = "https" if https else "http"
-    return f"{scheme}://{host}:{s.port}"
 
 
 def parse_feroxbuster(text: str) -> list[tuple[str, str, str]]:
@@ -1315,7 +1316,7 @@ class Feroxbuster(Plugin):
     async def run(self, ctx: HostContext, runner) -> list[Finding]:
         findings: list[Finding] = []
         for s in ctx.http_services():
-            url = _url_for(ctx.target.host, s)
+            url = http_url(ctx.target.host, s)
             out_file = ctx.outdir / "artifacts" / f"ferox-{s.port}.txt"
             argv = [
                 "feroxbuster", "-u", url, "-w", ctx.config.http_wordlist,
@@ -1610,16 +1611,11 @@ from __future__ import annotations
 
 import re
 
-from ..models import Finding, Service
-from .base import HostContext, Phase, Plugin, register
+from ..models import Finding
+from .base import HostContext, Phase, Plugin, http_url, register
 
 _NUCLEI_RE = re.compile(r"\[([^\]]+)\]\s*\[([^\]]+)\]\s*\[([^\]]+)\]\s*(\S+)")
 _VALID_SEV = {"info", "low", "medium", "high", "critical"}
-
-
-def _url_for(host: str, s: Service) -> str:
-    https = s.tunnel == "ssl" or "https" in s.name or s.port == 443
-    return f"{'https' if https else 'http'}://{host}:{s.port}"
 
 
 def parse_nuclei(text: str) -> list[Finding]:
@@ -1648,7 +1644,7 @@ class NucleiScan(Plugin):
         return bool(ctx.http_services())
 
     async def run(self, ctx: HostContext, runner) -> list[Finding]:
-        urls = [_url_for(ctx.target.host, s) for s in ctx.http_services()]
+        urls = [http_url(ctx.target.host, s) for s in ctx.http_services()]
         argv = ["nuclei", "-silent", "-nc", "-u", *urls]
         result = await runner.run("nuclei", argv, timeout=ctx.config.tool_timeout)
         findings = parse_nuclei(result.stdout)
