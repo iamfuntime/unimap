@@ -47,3 +47,17 @@ def test_dns_runs_nse(tmp_path):
     runner = FakeRunner().set("dns-nmap", stdout="| dns-recursion: Recursion appears to be enabled")
     findings = asyncio.run(DnsNmap().run(ctx, runner))
     assert any("dns" in f.title.lower() or f.source_tool == "nmap" for f in findings)
+
+
+def test_snmp_matches_only_on_snmp():
+    ctx = HostContext(target=Target(raw="h", host="h"), outdir=Path("."), config=Config())
+    assert SnmpWalk().matches(ctx) is False
+    ctx.services = [Service(port=161, proto="udp", name="snmp")]
+    assert SnmpWalk().matches(ctx) is True
+
+
+def test_dns_matches_only_on_dns():
+    ctx = HostContext(target=Target(raw="h", host="h"), outdir=Path("."), config=Config())
+    assert DnsNmap().matches(ctx) is False
+    ctx.services = [Service(port=53, name="domain")]
+    assert DnsNmap().matches(ctx) is True
