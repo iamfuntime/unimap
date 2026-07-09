@@ -1,86 +1,35 @@
-# UniMap
+# UniMap v2
 
-# Credit
+Async reconnaissance orchestrator for pentest labs (OSCP/CTF). Recon and
+enumeration only — never exploitation.
 
-This tool was heavily inspired by a few different tools that I came across while studying for my OSCP. After heavily using [Reconnoitre](https://github.com/codingo/Reconnoitre) written by [Codingo](https://www.twitter.com/codingo_), it would make some recommendations on further tools to run. But because I'm lazy, I wanted to have the option to run these automatically. But full Nmap scans can take an extremely long time, so I needed to find something else. In walks [onetwopunch](https://github.com/superkojiman/onetwopunch) which uses unicornscan to scan for open ports and then pushes that to Nmap. I utilized both these ideas. Much of the layout ideas were influenced by [Dave Kennedy](https://www.twitter.com/HackingDave). 
+## Install (WSL Ubuntu)
 
-# Usage
+    python3 -m venv ~/.venvs/unimap
+    ~/.venvs/unimap/bin/pip install -e ".[dev]"
 
-| Argument        | Description |
-| ------------- |:-------------|
-| -h, --help | Display help message and exit |
-| -t TARGET | Set a target IP Address |
-| -o OUTPUT_DIR | Directory where results will be written |
-| -p {tcp, udp, all } | Which protocol to scan for. Default is tcp |
-| -i INTERFACE | Which interface to use. Defaults to eth0 |
-| -s SPEED | Speed of Unicornscan by packets per second. Default is 1000 |
-| -n NMAP_OPTIONS | Set specific Nmap Options |
-| -e ENUM | Run additional enumeration programs |
-| -c CRACK | Run brute force password cracking utilities |
-| --ports {d, a} | Default Unicornscan ports, or all 1-65535 ports |
-| --quick | Run Unicornscan and basic Nmap scan |
-| --quiet | Suppress banner and headers to limit results |
+## Usage
 
-## Usage Examples
+    unimap -t 10.10.10.10                 # exam-compliant: single host
+    unimap -t 10.10.10.10 --all-ports     # full 65535 sweep
+    unimap --check                        # show installed vs missing tools
+    unimap -t 10.10.10.0/24 --lab         # multi-host (lab only)
+    unimap -t 10.10.10.10 --lab --brute   # + credential attacks (double-gated)
 
-```
-root@kali:~/tools/unimap# python unimap.py -h
-usage: unimap.py [-h] -t TARGET [-o OUTPUT_DIR] [-p {tcp,udp,all}]
-                 [-i INTERFACE] [-s SPEED] [-n NMAP_OPTIONS] [-e] [-c]
-                 [--ports {d,a}] [--quick] [--quiet]
+Output lands in `unimap-out/<host>/`: `result.json`, `report.md`, and raw
+tool output under `artifacts/`.
 
-optional arguments:
-  -h, --help        show this help message and exit
-  -t TARGET         Set a target IP address. Ex. 10.10.10.10
-  -o OUTPUT_DIR     Set the output directory. Defaults to /tmp/unimap
-  -p {tcp,udp,all}  Select the protocol to use. Ex. tcp/udp/all
-  -i INTERFACE      Select the interface. Ex. eth0
-  -s SPEED          Set the Packets Per Second for Unicornscan. Ex. 1000
-  -n NMAP_OPTIONS   Set NMAP options. Include in double quotes
-  -e                Run additional enumeration programs? e.g. wpscan, nikto,
-                    dirb, etc
-  -c                Run Brute Force password cracking against known services
-  --ports {d,a}     Default or All ports.
-  --quick           Run Unicornscan and basic Nmap scan
-  --quiet           Suppress banner and headers to limit results
-```
+## Modes
 
-```
-root@kali:~/tools/unimap# python unimap.py -t 192.168.1.1 -s 1000 --quick
+- **default** — exam-compliant: single host, portscan → nmap `-sV -sC` →
+  per-service enum → report. No vuln scanner, no brute.
+- **`--lab`** — unlocks CIDR/`@file` targets, nuclei vuln scanning, heavier enum.
+- **`--brute`** — requires `--lab`; enables credential attacks (off by default).
 
-             .__                       
- __ __  ____ |__| _____ _____  ______  
-|  |  \/    \|  |/     \\__  \ \____ \ 
-|  |  /   |  \  |  Y Y  \/ __ \|  |_> >
-|____/|___|  /__|__|_|  (____  /   __/ 
-           \/         \/     \/|__|    
-                             by funtime
+## Development
 
-[>] Target: 192.168.1.1
-[>] Output Directory: /tmp/unimap
-[>] Protocol: tcp
-[>] Interface: eth0
-[>] Unicornscan Speed: 1000
-[>] NMAP Options: -PN -A -T4 -sS -sC
-[>] Enumerate: False
-[>] Quick Scan?: True
-[>] Checking Directory Structure
-[>] Creating /tmp/unimap
-	[>] Creating /tmp/unimap/192.168.1.1
-	[>] Creating /tmp/unimap/192.168.1.1/scans
-	[>] Creating /tmp/unimap/192.168.1.1/exploit
-	[>] Creating /tmp/unimap/192.168.1.1/loot
+    scripts/dev.sh setup      # create venv + editable install
+    scripts/dev.sh test       # run the pytest suite (no real tools needed)
 
-[*] Starting Unicornscan for 192.168.1.1
-[+] unicornscan -i eth0 -mT -r 1000 -l /tmp/unimap/192.168.1.1/scans/unicornscan.txt 192.168.1.1:tcp_ports
-[*] Starting Basic Nmap Scan for 192.168.1.1
-[+] nmap -PN -A -T4 -sS -sC -p 22,53,80,443 -oA /tmp/unimap/192.168.1.1/scans/basic_nmap 192.168.1.1
-[*] Starting Amap Scan for 192.168.1.1
-[+] amap -bqv 192.168.1.1 22 53 80 443 -o /tmp/unimap/192.168.1.1/scans/amapscan.txt
-
-[>] Scans Complete! Results are located in /tmp/unimap/192.168.1.1/scans
-```
-
-# Requirements
-
-This tool requires at the bare minimum *unicornscan* and *nmap*. Any additional tools are not required but will make for more inclusive results.
+Design spec: `docs/superpowers/specs/2026-07-08-unimap-v2-modernization-design.md`.
+Adding a tool = one new file in `unimap/plugins/` subclassing `Plugin`.
