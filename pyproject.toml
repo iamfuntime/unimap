@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "unimap"
+version = "2.0.0"
+description = "Async recon orchestrator for pentest labs (OSCP/CTF)"
+requires-python = ">=3.10"
+dependencies = ["pyyaml>=6"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+unimap = "unimap.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["unimap*"]
+
+[tool.setuptools.package-data]
+"unimap.data" = ["*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
