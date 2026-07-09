@@ -19,9 +19,6 @@ class Phase(enum.IntEnum):
     REPORT = 7
 
 
-_HTTP_NAMES = {"http", "https", "http-proxy", "http-alt", "https-alt", "ssl/http"}
-
-
 @dataclass
 class HostContext:
     target: Target
@@ -41,7 +38,7 @@ class HostContext:
     def http_services(self) -> list[Service]:
         out: list[Service] = []
         for s in self.services:
-            if s.name in _HTTP_NAMES or "http" in s.name or s.tunnel == "ssl":
+            if "http" in s.name or s.tunnel == "ssl" or s.port in {80, 443}:
                 out.append(s)
         return out
 

@@ -45,6 +45,18 @@ def test_http_services_filter():
     assert sorted(s.port for s in ctx.http_services()) == [80, 8080, 8443]
 
 
+def test_http_services_includes_unnamed_web_ports():
+    ctx = _ctx()
+    ctx.services = [
+        Service(port=443, name=""),
+        Service(port=80, name="tcpwrapped"),
+        Service(port=22, name="ssh"),
+    ]
+    assert sorted(s.port for s in ctx.http_services()) == [80, 443]
+    unnamed_443 = next(s for s in ctx.services if s.port == 443)
+    assert http_url("10.0.0.1", unnamed_443) == "https://10.0.0.1:443"
+
+
 def test_services_named():
     ctx = _ctx()
     ctx.services = [Service(port=445, name="microsoft-ds"), Service(port=22, name="ssh")]
